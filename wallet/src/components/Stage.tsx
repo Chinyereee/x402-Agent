@@ -84,6 +84,12 @@ export function Stage({ auto }: { auto: boolean }) {
   const statement = scenario === "statement";
   const buyer = step?.buyer;
   const shownChecks = buyer?.checks ?? 0;
+  const declined = buyer?.tone === "declined";
+  const cardLit = buyer?.tone === "work" && shownChecks > 0;
+  const termLit = step?.slip?.label === "PAYMENT-REQUIRED";
+  const activity = !statement && (stamp === "pending" || stamp === "paid" || declined)
+    ? { label: declined ? "Declined" : stamp === "paid" ? "Posted" : "Pending", amount: declined ? `$${script.price}` : `−$${script.price}` }
+    : null;
   const lagos = script.city === "Lagos";
 
   return (
@@ -122,9 +128,11 @@ export function Stage({ auto }: { auto: boolean }) {
           <div className="st-place"><b>New York</b><span>4:12 PM</span></div>
           <div className="st-phone">
             <div className="st-who">Lina&apos;s agent wallet</div>
-            <div className="st-avail">
-              <span className="muted small">Available this month</span>
-              <span className="st-big">{cents(available)}</span>
+            <div key={declined ? "declined" : cardLit ? "lit" : "card"} className={`st-card ${cardLit ? "lit" : ""} ${declined ? "declined" : ""}`}>
+              <div className="st-card-top"><span className="st-chip" /><span>Agent allowance</span></div>
+              <div className="st-card-avail"><span>Available</span><b>{cents(available)}</b></div>
+              <div className="st-card-limit">LIMIT $2.00 / MONTH · $0.25 / PAYMENT</div>
+              {declined && <div className="st-card-stamp">DECLINED</div>}
             </div>
             {!statement && <div className="st-req">
               <div className="muted small">{step ? `${script.merchant} asks` : "Waiting for the agent"}</div>
@@ -137,6 +145,16 @@ export function Stage({ auto }: { auto: boolean }) {
                 </li>
               ))}
             </ul>
+            {activity && (
+              <div className="st-activity">
+                <div className="muted small">Activity</div>
+                <div key={activity.label} className={`st-act ${activity.label.toLowerCase()}`}>
+                  <span>{script.merchant}</span>
+                  <span className="st-act-label">{activity.label}</span>
+                  <b>{activity.amount}</b>
+                </div>
+              </div>
+            )}
             <div className={`st-status ${buyer?.tone ?? "idle"}`}>{buyer?.status ?? "Ready"}</div>
             {buyer?.note && <div className="st-note">{buyer.note}</div>}
             {buyer?.ask && (
@@ -181,7 +199,7 @@ export function Stage({ auto }: { auto: boolean }) {
           <div className="st-place"><b>{lagos ? "Lagos" : "Somewhere"}</b><span>{lagos ? "10:12 PM" : ""}</span></div>
           <div className="st-till">
             <div className="st-who">{script.merchant}{lagos ? " · Chinyere" : " · not on Lina's list"}</div>
-            <div className="st-lcd">
+            <div key={termLit ? "lit" : "lcd"} className={`st-lcd ${termLit ? "lit" : ""}`}>
               <span>{step?.seller.status ?? "Idle"}</span>
               <b>{step ? `${script.price} USDC` : "—"}</b>
             </div>

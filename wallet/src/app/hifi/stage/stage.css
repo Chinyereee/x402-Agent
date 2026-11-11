@@ -136,3 +136,34 @@
 .st-tray { gap: 12px; position: relative; }
 .st-coin.drop { animation: drop .6s cubic-bezier(.5, 0, .7, 1.4); }
 @keyframes drop { from { transform: translateY(-70px); opacity: 0; } 60% { opacity: 1; } }
+
+/* the allowance as a card */
+.st-card { position: relative; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; color: #fff; background: linear-gradient(135deg, #1d4fbf, #1677ff 60%, #5aa0ff); box-shadow: 0 10px 22px rgba(22, 119, 255, .25); overflow: hidden; }
+.st-card-top { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; opacity: .9; }
+.st-chip { width: 30px; height: 22px; border-radius: 5px; background: linear-gradient(135deg, #f6d77a, #d9a93a); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.st-card-avail { display: flex; flex-direction: column; margin: 10px 0 6px; }
+.st-card-avail span { font-size: 12px; opacity: .8; }
+.st-card-avail b { font-size: 36px; letter-spacing: -0.02em; line-height: 1.05; }
+.st-card-limit { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; opacity: .85; }
+.st-card.lit { animation: cardlit 1.4s ease-out; }
+@keyframes cardlit { 0% { box-shadow: 0 0 0 0 rgba(22,119,255,.6); } 40% { box-shadow: 0 0 0 10px rgba(22,119,255,.18); } 100% { box-shadow: 0 10px 22px rgba(22,119,255,.25); } }
+.st-card.declined { background: linear-gradient(135deg, #6b7280, #9aa1ad); animation: shake .5s; }
+.st-card-stamp { position: absolute; right: 14px; top: 38%; font-weight: 800; letter-spacing: .14em; font-size: 20px; color: #fff; background: var(--block); padding: 4px 12px; border-radius: 6px; transform: rotate(-8deg); animation: stamp .35s cubic-bezier(.2, 1.6, .4, 1); }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
+
+/* the price lights up on the terminal */
+.st-lcd.lit { animation: lcdlit 1.6s ease-out; }
+.st-lcd.lit b { animation: lcdtext 1.6s ease-out; }
+@keyframes lcdlit { 0% { background: #eef3ea; } 15% { background: #d6f5c8; box-shadow: 0 0 0 6px rgba(56,158,13,.15), inset 0 0 18px rgba(56,158,13,.25); } 100% { background: #eef3ea; } }
+@keyframes lcdtext { 0% { opacity: 0; } 10% { opacity: 1; text-shadow: 0 0 10px rgba(56,158,13,.6); } 100% { text-shadow: none; } }
+
+/* bank-app style activity row */
+.st-activity { margin: -2px 0 12px; }
+.st-act { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: baseline; padding: 10px 2px; border-bottom: 1px solid var(--line); animation: rise .3s ease-out; }
+.st-act-label { font-size: 12px; }
+.st-act.pending { color: var(--sub); font-style: italic; }
+.st-act.posted { color: var(--ink); }
+.st-act.posted .st-act-label { color: var(--paid); font-weight: 600; font-style: normal; }
+.st-act.declined { color: var(--sub); }
+.st-act.declined b { text-decoration: line-through; }
+.st-act.declined .st-act-label { color: var(--block); font-weight: 600; }
