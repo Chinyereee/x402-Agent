@@ -4,7 +4,7 @@ import { decodePaymentRequiredHeader, decodePaymentResponseHeader } from '@x402/
 
 import { createApp, type RunJob } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
-import { FakeFacilitator, PAY_TO, paymentFor } from './helpers.js';
+import { FakeFacilitator, FakeGitHub, PAY_TO, paymentFor } from './helpers.js';
 
 const REPO = { repoUrl: 'https://github.com/lina/tutor-app' };
 const okJob: RunJob = async () => ({
@@ -21,8 +21,10 @@ describe('POST /api/v1/migrate – the x402 handshake', () => {
     facilitator = new FakeFacilitator();
   });
 
+  const github = new FakeGitHub();
+  github.add('lina/tutor-app', { 'package.json': JSON.stringify({ dependencies: { ethers: '^5.7.2' } }) });
   const app = (runJob: RunJob = okJob, env: Record<string, string> = {}) =>
-    createApp({ config: loadConfig({ PAY_TO, ...env }), facilitator, runJob });
+    createApp({ config: loadConfig({ PAY_TO, ...env }), facilitator, github, runJob });
 
   it('answers an unpaid request with 402 and the payment requirements from the README', async () => {
     const res = await request(app()).post('/api/v1/migrate').send(REPO);

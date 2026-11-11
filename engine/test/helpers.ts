@@ -1,6 +1,7 @@
 import type { FacilitatorClient } from '@x402/core/server';
 import type { PaymentPayload, PaymentRequirements } from '@x402/core/types';
 import { decodePaymentRequiredHeader, encodePaymentSignatureHeader } from '@x402/core/http';
+import type { GitHubApi, RepoInfo } from '../src/preflight.js';
 
 export const PAY_TO = 'GAAZI4TCR3TY5OJHCTJC2A4QSY6CJWJH5IAJTGKIN2ER7LBNVKOCCWN7';
 export const PAYER = 'GBUYERXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
@@ -50,3 +51,35 @@ export function paymentFor(paymentRequiredHeader: string): string {
   };
   return encodePaymentSignatureHeader(payload);
 }
+
+/** GitHub as seen by the engine's token: a map of repos and their files. */
+export class FakeGitHub implements GitHubApi {
+  repos = new Map<string, RepoInfo & { files: Record<string, string> }>();
+  calls = 0;
+
+  add(fullName: string, files: Record<string, string>, over: Partial<RepoInfo> = {}) {
+    this.repos.set(fullName.toLowerCase(), {
+      fullName,
+      defaultBranch: 'main',
+      sizeKb: 120,
+      canPush: true,
+      files,
+      ...over,
+    });
+  }
+
+  async getRepo(owner: string, repo: string) {
+    this.calls++;
+    const r = this.repos.get(`${owner}/${repo}`.toLowerCase());
+    return r ? { fullName: r.fullName, defaultBranch: r.defaultBranch, sizeKb: r.sizeKb, canPush: r.canPush } : null;
+  }
+
+  async listFiles(owner: string, repo: string) {
+    return Object.keys(this.repos.get(`${owner}/${repo}`.toLowerCase())!.files);
+  }
+
+  async readFile(owner: string, repo: string, path: string) {
+    return this.repos.get(`${owner}/${repo}`.toLowerCase())!.files[path] ?? null;
+  }
+}
+

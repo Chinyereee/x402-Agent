@@ -17,8 +17,8 @@ Built on the official packages: `@x402/express` (middleware), `@x402/stellar` (e
 | Step | | |
 |---|---|---|
 | A | Paid endpoint, settle-on-success, job timeout, test payer | done |
-| B | Free preflight (repo, App, ethers v5, size) | next |
-| C | Real job: clone, codemod, `package.json` + lockfile, pull request | |
+| B | Free preflight (repo, push access, ethers v5, size) | done |
+| C | Real job: clone, codemod, `package.json` + lockfile, pull request | next |
 | D | Idempotent retries (same payment → same job and PR) | |
 
 Until step C, the only job is `hello`: it takes the payment and opens no pull request.
@@ -44,13 +44,17 @@ You need two testnet accounts, made in [Stellar Lab](https://lab.stellar.org/acc
 Add the trustline in [Stellar Lab → Fund account](https://lab.stellar.org/account/fund).
 
 ```bash
-cp engine/.env.example engine/.env    # set PAY_TO=G... (the engine account)
+cp engine/.env.example engine/.env    # set PAY_TO=G... (the engine account) and GITHUB_TOKEN
 npm start -w engine                   # 402 Found engine on http://localhost:4021 ...
 
 # in another terminal
 cd engine
 BUYER_SECRET=S... EXPECT_PAY_TO=G... npx tsx scripts/pay.ts https://github.com/<owner>/<repo>
 ```
+
+The repo must pass the free preflight first: the token can push to it and a `package.json`
+depends on ethers v5. Otherwise the engine answers 400/403/404/413/422 and never asks for
+payment. A fork of any ethers v5 project works.
 
 Expected: `HTTP 200`, a `hello` body, `settled: true` and a stellar.expert link to the
 transaction. The test payer refuses to sign anything other than USDC on testnet, at most

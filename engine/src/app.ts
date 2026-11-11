@@ -4,11 +4,15 @@ import type { FacilitatorClient } from '@x402/core/server';
 import { ExactStellarScheme } from '@x402/stellar/exact/server';
 
 import type { EngineConfig } from './config.js';
+import { preflight, type GitHubApi, type PreflightResult } from './preflight.js';
 
 export const MIGRATE_PATH = '/api/v1/migrate';
 
+/** What the paid job receives: the request plus what the preflight found. */
 export interface JobInput {
   repoUrl: string;
+  repo: Extract<PreflightResult, { ok: true }>['repo'];
+  ethersPackages: string[];
 }
 
 /**
@@ -30,6 +34,8 @@ export interface AppDeps {
   config: EngineConfig;
   /** Verifies and settles payments: an HTTPFacilitatorClient in production. */
   facilitator: FacilitatorClient;
+  /** GitHub reads for the free preflight */
+  github: GitHubApi;
   runJob: RunJob;
 }
 
@@ -58,12 +64,25 @@ async function withTimeout(runJob: RunJob, input: JobInput, ms: number): Promise
 }
 
 /** Build the Express app. Kept separate from server.ts so tests can use it without a port. */
-export function createApp({ config, facilitator, runJob }: AppDeps): Express {
+export function createApp({ config, facilitator, github, runJob }: AppDeps): Express {
   const app = express();
   app.use(express.json({ limit: '16kb' }));
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
+  });
+
+  // Free preflight, before the paywall: a request we cannot serve gets its 4xx
+  // and is never asked to pay. It runs again on the paid request, so nothing
+  // that changed in between (App removed, ethers upgraded) is charged for.
+  app.post(MIGRATE_PATH, async (req, res, next) => {
+    const result = await preflight(req.body?.repoUrl, github, { maxRepoKb: config.maxRepoKb });
+    if (!result.ok) {
+      res.status(result.status).json({ status: 'rejected', error: result.error, message: result.message });
+      return;
+    }
+    res.locals.preflight = result;
+    next();
   });
 
   // x402: unpaid requests get 402 + PAYMENT-REQUIRED; paid ones are verified
@@ -95,7 +114,9 @@ export function createApp({ config, facilitator, runJob }: AppDeps): Express {
 
   app.post(MIGRATE_PATH, async (req, res) => {
     try {
-      const result = await withTimeout(runJob, { repoUrl: req.body?.repoUrl }, config.jobTimeoutMs);
+      const checked = res.locals.preflight as Extract<PreflightResult, { ok: true }>;
+      const input: JobInput = { repoUrl: req.body.repoUrl, repo: checked.repo, ethersPackages: checked.ethersPackages };
+      const result = await withTimeout(runJob, input, config.jobTimeoutMs);
       res.status(200).json(result);
     } catch (err) {
       if (err instanceof JobTimeoutError) {

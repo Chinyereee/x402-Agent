@@ -16,6 +16,8 @@ export interface EngineConfig {
   maxTimeoutSeconds: number;
   /** Hard limit on one job; the job is stopped and nothing is settled after it. */
   jobTimeoutMs: number;
+  /** Largest repository the engine accepts, in KB as GitHub reports it */
+  maxRepoKb: number;
 }
 
 /** Time we always keep between the end of a job and the signature expiring. */
@@ -49,5 +51,6 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): EngineConfig {
     price: env.PRICE ?? '$0.05',
     maxTimeoutSeconds,
     jobTimeoutMs,
+    maxRepoKb: Number(env.MAX_REPO_KB ?? 50_000),
   };
 }
