@@ -15,4 +15,4 @@ npm run dev    # http://localhost:3040
 npm test       # rules engine tests
 ```
 
-Pages: `/` is the lo-fi wireframe board (the same screens with the flow between them, for Phase 2). The clickable prototype is under `/hifi`: home (allowance, rules, receipts), `/hifi/rules` (plain words to enforced limits), a receipt (rule checks and what happened) and `/hifi/console` (the x402 handshake). `/bars` is an earlier lo-fi draft with placeholder bars.
+Pages: `/` is the lo-fi wireframe board (the same screens with the flow between them, for Phase 2). Under `/hifi` is an early design direction (colours, type, sizes), clickable but not final; we discuss and change screens on the lo-fi board first. It has: home (allowance, rules, receipts), `/hifi/rules` (plain words to enforced limits), a receipt (rule checks and what happened) and `/hifi/console` (the x402 handshake). `/bars` is an earlier lo-fi draft with placeholder bars.
