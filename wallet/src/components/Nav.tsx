@@ -13,7 +13,7 @@ const LINKS = [
 // The prototype's nav lives under /hifi only; the lo-fi board at / stands on its own.
 export function Nav() {
   const path = usePathname();
-  if (!path.startsWith("/hifi")) return null;
+  if (!path.startsWith("/hifi") || path === "/hifi/stage") return null;
   return (
     <header className="top">
       <Link href="/hifi" className="brand">
