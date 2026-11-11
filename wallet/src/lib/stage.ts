@@ -8,6 +8,7 @@ export type Line =
   | { k: "text"; left: string; right?: string; faint?: boolean; strong?: boolean }
   | { k: "rule" }
   | { k: "sign" }
+  | { k: "signed" }
   | { k: "barcode"; label: string };
 
 export type Slip = { label: string; dir: "ltr" | "rtl"; coin?: string };
@@ -77,7 +78,7 @@ export const SCRIPTS: Record<Scenario, Script> = {
         buyer: { status: "Signed", tone: "pending", checks: 3, note: "The agent signs for exactly $0.05" },
         seller: { status: "Payment signed", log: "verifying with the facilitator" },
         slip: { label: "PAYMENT-SIGNATURE", dir: "ltr" },
-        print: [{ k: "text", left: "SIGNED", right: "valid 15 min", faint: true }],
+        print: [{ k: "signed" }],
         familiar: ["Signing the authorization", "Signing the slip"],
       },
       {
@@ -160,7 +161,7 @@ export const SCRIPTS: Record<Scenario, Script> = {
         buyer: { status: "Allowed once · pending", tone: "pending", checks: 3, note: "Your rules stay the same" },
         seller: { status: "Payment signed", log: "verifying with the facilitator" },
         slip: { label: "PAYMENT-SIGNATURE", dir: "ltr" },
-        print: [{ k: "text", left: "ALLOWED ONCE", right: "by Lina" }],
+        print: [{ k: "text", left: "ALLOWED ONCE", right: "by Lina" }, { k: "signed" }],
         stamp: "pending",
         available: 155,
       },

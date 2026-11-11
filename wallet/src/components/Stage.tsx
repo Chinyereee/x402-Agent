@@ -188,7 +188,12 @@ export function Stage({ auto }: { auto: boolean }) {
             <ul className="st-log">
               {logs.map((l, i) => <li key={i}>{l}</li>)}
             </ul>
-            {step?.drawer && <div key={slipKey + "d"} className="st-tray"><span>ding</span></div>}
+            {step?.drawer && (
+              <div key={slipKey + "d"} className="st-tray">
+                <i className="st-coin drop">{script.price}</i>
+                <span>ding</span>
+              </div>
+            )}
             <div className={`st-drawer ${step?.drawer ? "ding" : ""}`}>
               <span className="muted small">{statement ? "This month" : "Received today"}</span>
               <b>{(received / 100).toFixed(2)} USDC</b>
@@ -205,6 +210,15 @@ export function Stage({ auto }: { auto: boolean }) {
 
 function ReceiptLine({ line, faint }: { line: Line; faint: boolean }) {
   if (line.k === "rule") return <div className="rc-line rc-rule" />;
+  if (line.k === "signed") return (
+    <div className="rc-line rc-signed">
+      <span>SIGNED</span>
+      <svg viewBox="0 0 160 34" aria-hidden>
+        <path d="M4 24 C 14 6, 22 6, 20 22 S 30 30, 38 14 C 42 6, 46 26, 52 20 C 58 14, 60 22, 66 20 C 74 17, 76 8, 82 12 C 88 16, 84 28, 92 24 C 100 20, 104 12, 112 16 C 120 20, 124 26, 134 18 L 156 10" />
+      </svg>
+      <span className="rc-valid">valid 15 min</span>
+    </div>
+  );
   if (line.k === "sign") return <div className="rc-line rc-sign"><span>Allow once</span><i /></div>;
   if (line.k === "barcode") return (
     <div className="rc-line rc-bar">
