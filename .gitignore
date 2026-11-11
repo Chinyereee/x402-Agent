@@ -3,3 +3,11 @@ dist/
 .env
 *.log
 /engine/.jobs/
+
+# wallet (Next.js)
+.next/
+.env*
+!.env.example
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
