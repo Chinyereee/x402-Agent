@@ -1,0 +1,14 @@
+{
+  "name": "402-found",
+  "private": true,
+  "workspaces": [
+    "engine"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "npm test --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  }
+}
