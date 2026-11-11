@@ -4,17 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
-  { href: "/", label: "Home" },
-  { href: "/rules", label: "Rules" },
-  { href: "/console", label: "Demo console" },
-  { href: "/lofi", label: "Lo-fi" },
+  { href: "/hifi", label: "Home" },
+  { href: "/hifi/rules", label: "Rules" },
+  { href: "/hifi/console", label: "Demo console" },
+  { href: "/", label: "Lo-fi" },
 ];
 
+// The prototype's nav lives under /hifi only; the lo-fi board at / stands on its own.
 export function Nav() {
   const path = usePathname();
+  if (!path.startsWith("/hifi")) return null;
   return (
     <header className="top">
-      <Link href="/" className="brand">
+      <Link href="/hifi" className="brand">
         <span className="mark">R</span> Receipts
       </Link>
       <nav className="nav">

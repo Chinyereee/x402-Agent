@@ -16,7 +16,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
 
   return (
     <>
-      <p className="small"><Link href="/">← All receipts</Link></p>
+      <p className="small"><Link href="/hifi">← All receipts</Link></p>
       <h1>{r.what}</h1>
       <p className="lead">Receipt {r.id} · {r.at}</p>
 
