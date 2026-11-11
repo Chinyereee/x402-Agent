@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/", label: "Home" },
   { href: "/rules", label: "Rules" },
   { href: "/console", label: "Demo console" },
+  { href: "/lofi", label: "Lo-fi" },
 ];
 
 export function Nav() {

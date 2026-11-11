@@ -1,0 +1,90 @@
+.lf {
+  --lf-bg: #f3f6fa;
+  --lf-dot: #d3dde8;
+  --lf-ink: #2c3540;
+  --lf-gray: #5e6b78;
+  --lf-dark: #22609b;
+  --lf-mid: #a9c6de;
+  --lf-light: #dde7f1;
+  --lf-paper: #fbfcfd;
+  --lf-line: #b9cde0;
+  font-family: Montserrat, Inter, system-ui, sans-serif;
+  color: var(--lf-ink);
+  background-color: var(--lf-bg);
+  background-image: radial-gradient(var(--lf-dot) 1.2px, transparent 1.2px);
+  background-size: 22px 22px;
+  border-radius: 24px;
+  padding: 28px 24px 40px;
+  position: relative;
+  width: min(1600px, calc(100vw - 32px));
+  left: 50%;
+  transform: translateX(-50%);
+}
+.lf-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
+.lf-title { font-size: clamp(30px, 5vw, 56px); font-weight: 600; letter-spacing: -0.02em; margin: 0; line-height: 1.05; }
+.lf-by { color: var(--lf-dark); font-weight: 500; font-size: 15px; }
+.lf-sub { color: var(--lf-gray); margin: 0 0 20px; font-size: 15px; }
+.lf-h2 { font-size: 22px; font-weight: 600; margin: 36px 0 4px; }
+
+.lf-scale { position: relative; width: 100%; overflow: hidden; }
+.lf-board { position: absolute; top: 0; left: 0; transform-origin: 0 0; }
+
+/* frames */
+.lf-frame { position: absolute; background: var(--lf-paper); border: 2px solid var(--lf-line); border-radius: 14px; overflow: hidden; box-shadow: 0 8px 24px rgba(34, 96, 155, 0.08); }
+.lf-frame.static { position: relative; }
+.lf-chrome { height: 26px; background: var(--lf-light); display: flex; align-items: center; gap: 6px; padding: 0 12px; }
+.lf-chrome i { width: 8px; height: 8px; border-radius: 50%; background: var(--lf-mid); }
+.lf-chrome b { margin-left: 10px; height: 10px; width: 40%; border-radius: 5px; background: #fff; }
+.lf-phone { border: 3px solid var(--lf-ink); border-radius: 30px; border-bottom-width: 10px; border-bottom-color: var(--lf-dark); }
+.lf-notch { height: 26px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.lf-notch b { width: 70px; height: 14px; border-radius: 8px; background: var(--lf-ink); }
+.lf-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+/* atoms */
+.lf-bar { height: 7px; border-radius: 4px; background: var(--lf-ink); }
+.lf-bar.g { background: var(--lf-gray); }
+.lf-bar.m { background: var(--lf-mid); }
+.lf-bar.t { height: 11px; }
+.lf-lines { display: flex; flex-direction: column; gap: 6px; }
+.lf-txt { font-size: 13px; font-weight: 600; margin: 0; }
+.lf-txt.big { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; }
+.lf-txt.s { font-size: 10px; font-weight: 500; color: var(--lf-gray); }
+.lf-row { display: flex; gap: 10px; align-items: center; }
+.lf-grow { flex: 1; min-width: 0; }
+.lf-card { background: var(--lf-light); border-radius: 10px; padding: 10px 12px; }
+.lf-card.w { background: #fff; border: 1.5px solid var(--lf-light); }
+.lf-chip { height: 18px; border-radius: 9px; background: var(--lf-mid); display: inline-flex; align-items: center; padding: 0 9px; }
+.lf-chip::after { content: ""; display: block; height: 5px; border-radius: 3px; background: var(--lf-dark); width: var(--w, 40px); }
+.lf-btn { height: 24px; border-radius: 6px; background: var(--lf-dark); display: inline-flex; align-items: center; justify-content: center; padding: 0 14px; color: #fff; font-size: 10.5px; font-weight: 600; white-space: nowrap; }
+.lf-btn.ghost { background: var(--lf-mid); color: var(--lf-ink); }
+.lf-pill { font-size: 9.5px; font-weight: 600; border-radius: 9px; padding: 2px 8px; white-space: nowrap; }
+.lf-pill.paid { background: var(--lf-dark); color: #fff; }
+.lf-pill.pending { background: var(--lf-mid); color: var(--lf-ink); }
+.lf-pill.needs { background: #fff; color: var(--lf-dark); box-shadow: inset 0 0 0 1.5px var(--lf-dark); }
+.lf-pill.blocked { background: repeating-linear-gradient(135deg, var(--lf-light) 0 4px, #fff 4px 8px); color: var(--lf-gray); box-shadow: inset 0 0 0 1.5px var(--lf-mid); }
+.lf-input { border: 1.5px solid var(--lf-mid); border-radius: 8px; padding: 10px; background: #fff; display: flex; flex-direction: column; gap: 6px; }
+.lf-check { display: flex; align-items: center; gap: 8px; }
+.lf-check i { width: 14px; height: 14px; border-radius: 4px; background: var(--lf-dark); flex: none; position: relative; }
+.lf-check i::after { content: ""; position: absolute; left: 4px; top: 1.5px; width: 4px; height: 7px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.lf-check i.no { background: #fff; box-shadow: inset 0 0 0 1.5px var(--lf-dark); }
+.lf-check i.no::after { border: 0; left: 3px; top: 6px; width: 8px; height: 2px; background: var(--lf-dark); transform: none; }
+.lf-step { display: flex; gap: 10px; align-items: center; }
+.lf-step i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--lf-dark); background: #fff; flex: none; }
+.lf-step i.dim { border-color: var(--lf-mid); }
+.lf-code { background: var(--lf-light); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+.lf-tabs { display: flex; gap: 4px; background: var(--lf-light); border-radius: 8px; padding: 3px; width: fit-content; }
+.lf-tabs span { height: 18px; width: 54px; border-radius: 6px; }
+.lf-tabs span.on { background: #fff; }
+
+/* flow */
+.lf-flow { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.lf-tag { position: absolute; display: inline-flex; align-items: center; gap: 8px; }
+.lf-tag span { background: var(--lf-dark); color: #fff; font-weight: 600; font-size: 15px; padding: 7px 16px; border-radius: 999px; white-space: nowrap; }
+.lf-tag span.l { background: var(--lf-mid); color: var(--lf-ink); }
+.lf-tag i { width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--lf-dark); background: #fff; }
+.lf-note { position: absolute; font-size: 13px; font-weight: 600; color: var(--lf-dark); background: var(--lf-bg); padding: 2px 6px; border-radius: 6px; white-space: nowrap; }
+
+.lf-screens { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr)); gap: 32px; align-items: start; margin-top: 16px; }
+.lf-cap { margin: 10px 2px 0; }
+.lf-cap b { color: var(--lf-dark); margin-right: 6px; }
+.lf-cap p { margin: 2px 0 0; color: var(--lf-gray); font-size: 14px; }

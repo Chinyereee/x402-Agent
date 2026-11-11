@@ -15,4 +15,4 @@ npm run dev    # http://localhost:3040
 npm test       # rules engine tests
 ```
 
-Pages: Home (allowance, rules, receipts), Rules (plain words to enforced limits), a receipt (rule checks and what happened), Demo console (the x402 handshake). The rule parsing and checks in `src/lib/rules.ts` are real code; the payments and the engine are sample data until the Stellar side is wired.
+Pages: Home (allowance, rules, receipts), Rules (plain words to enforced limits), a receipt (rule checks and what happened), Demo console (the x402 handshake), and Lo-fi (`/lofi`, the same screens as low-fidelity wireframes with the flow between them, for Phase 2). The rule parsing and checks in `src/lib/rules.ts` are real code; the payments and the engine are sample data until the Stellar side is wired.
