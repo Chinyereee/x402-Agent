@@ -51,12 +51,12 @@ export default function LofiPage() {
             <Flow d="M 500 275 H 584" sx={500} sy={275} />
             <Flow d="M 1150 250 H 1254" sx={1150} sy={250} />
             <Flow d="M 590 500 H 300 Q 280 500 280 520 V 594" sx={590} sy={500} />
-            <Flow d="M 880 640 V 566" sx={880} sy={640} />
+            <Flow d="M 880 648 V 616" sx={880} sy={648} />
             <Flow d="M 530 860 H 600" sx={530} sy={860} />
           </svg>
 
           <Frame style={{ left: 30, top: 110, width: 470, height: 330 }}><RulesLo /></Frame>
-          <Frame style={{ left: 590, top: 60, width: 560, height: 500 }}><HomeLo /></Frame>
+          <Frame style={{ left: 590, top: 50, width: 560, height: 560 }}><HomeLo /></Frame>
           <Frame phone style={{ left: 1260, top: 30, width: 270, height: 560 }}><PhoneLo /></Frame>
           <Frame style={{ left: 30, top: 600, width: 500, height: 430 }}><ReceiptLo /></Frame>
           <Frame style={{ left: 620, top: 650, width: 520, height: 380 }}><ConsoleLo /></Frame>
@@ -64,7 +64,7 @@ export default function LofiPage() {
           <span className="lf-note" style={{ left: 488, top: 238 }}>Confirm once</span>
           <span className="lf-note" style={{ left: 1150, top: 212 }}>Same on a phone</span>
           <span className="lf-note" style={{ left: 330, top: 508 }}>Tap a receipt</span>
-          <span className="lf-note" style={{ left: 896, top: 590 }}>Every run leaves a receipt</span>
+          <span className="lf-note" style={{ left: 896, top: 620 }}>Every run leaves a receipt</span>
           <span className="lf-note" style={{ left: 528, top: 822 }}>Allow once</span>
 
           <svg className="lf-flow" width={W} height={H}>

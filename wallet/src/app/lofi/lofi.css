@@ -88,3 +88,16 @@
 .lf-cap { margin: 10px 2px 0; }
 .lf-cap b { color: var(--lf-dark); margin-right: 6px; }
 .lf-cap p { margin: 2px 0 0; color: var(--lf-gray); font-size: 14px; }
+
+/* words instead of bars */
+.lf-t { font-size: 11px; font-weight: 600; color: var(--lf-ink); margin: 0; line-height: 1.35; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lf-t.g { color: var(--lf-gray); font-weight: 500; }
+.lf-t.b { color: var(--lf-dark); }
+.lf-t.h { font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
+.lf-t.mono { font-family: ui-monospace, Menlo, monospace; font-size: 10px; font-weight: 500; }
+.lf-t.wrap { white-space: normal; }
+.lf-chip.word { height: 20px; padding: 0 9px; font-size: 10px; font-weight: 600; color: var(--lf-dark); }
+.lf-chip.word::after { display: none; }
+.lf-tabs.word span { width: auto; height: auto; padding: 3px 8px; font-size: 9.5px; font-weight: 600; color: var(--lf-gray); }
+.lf-tabs.word span.on { color: var(--lf-ink); }
+.lf-logo { width: 16px; height: 16px; border-radius: 5px; background: var(--lf-dark); color: #fff; font-size: 9px; font-weight: 700; display: grid; place-items: center; flex: none; }
