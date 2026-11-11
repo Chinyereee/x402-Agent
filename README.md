@@ -9,6 +9,8 @@ Team 402 Found for EmpowerHer: Building the Agent Economy.
 | Codemod engine | Chinyere | The seller: upgrades a repository from ethers v5 to v6 and delivers it as a GitHub pull request, behind an HTTP 402 |
 | Receipts wallet (`/wallet`) | Elodie | The buyer: holds the agent's testnet key, enforces the owner's rules in code, signs the payment, keeps a receipt |
 
+The codemod the engine runs lives in [`/codemod`](codemod), with its full git history; [`codemod/HACKATHON.md`](codemod/HACKATHON.md) shows what existed before the hackathon and what we added.
+
 This README is the shared contract between the two modules. If anything here changes, change it here first and tell the other person.
 
 ## Payment requirements (x402 v2)
