@@ -1,0 +1,96 @@
+version: "1.0.0"
+steps:
+  - name: run-ast-grep-transforms
+    engine: jssg
+    # (Your existing transform settings live here)
+
+  # Add this new step right below your main engine run:
+  - name: resolve-ai-todos
+    engine: ai
+    prompt: |
+      You are an expert migration agent assisting with an ethers.js v5 to v6 upgrade. 
+      Review any code segments that contain the comment "// TODO: codemod flagged".
+      Refactor those lines inline to use native BigInt equivalents or valid async fee data getters.
+      Ensure type matching remains consistent without causing runtime TypeErrors.
+    model: gemini-2.5-flash
+
+nodes:
+  - id: rename-utils
+    name: "Rename ethers.utils.* to top-level ethers.*"
+    type: automatic
+    steps:
+      - name: "Rename ethers.utils.* to top-level ethers.*"
+        js-ast-grep:
+          js_file: scripts/rename-utils.ts
+          language: tsx
+
+  - id: bigNumber-to-bigint
+    name: "Replace BigNumber with native bigint"
+    type: automatic
+    depends_on: [rename-utils]
+    steps:
+      - name: "Replace BigNumber with native bigint"
+        js-ast-grep:
+          js_file: scripts/bigNumber-to-bigint.ts
+          language: tsx
+
+  - id: rename-providers
+    name: "Rename ethers.providers.* to v6 provider names"
+    type: automatic
+    depends_on: [bigNumber-to-bigint]
+    steps:
+      - name: "Rename ethers.providers.* to v6 provider names"
+        js-ast-grep:
+          js_file: scripts/rename-providers.ts
+          language: tsx
+
+  - id: rename-constants
+    name: "Rename ethers.constants.* to v6 equivalents"
+    type: automatic
+    depends_on: [rename-providers]
+    steps:
+      - name: "Rename ethers.constants.* to v6 equivalents"
+        js-ast-grep:
+          js_file: scripts/rename-constants.ts
+          language: tsx
+
+  - id: rename-contract-methods
+    name: "Rename contract method buckets"
+    type: automatic
+    depends_on: [rename-constants]
+    steps:
+      - name: "Rename contract method buckets"
+        js-ast-grep:
+          js_file: scripts/rename-contract-methods.ts
+          language: tsx
+
+  - id: rename-provider-methods
+    name: "Rename provider methods"
+    type: automatic
+    depends_on: [rename-contract-methods]
+    steps:
+      - name: "Rename provider methods"
+        js-ast-grep:
+          js_file: scripts/rename-provider-methods.ts
+          language: tsx
+
+  - id: gasPrice-to-feeData
+    name: "Replace getGasPrice with getFeeData"
+    type: automatic
+    depends_on: [rename-provider-methods]
+    steps:
+      - name: "Replace getGasPrice with getFeeData"
+        js-ast-grep:
+          js_file: scripts/gasPrice-to-feeData.ts
+          language: tsx
+
+  - id: update-imports
+    name: "Clean up deprecated import specifiers"
+    type: automatic
+    depends_on: [gasPrice-to-feeData]
+    steps:
+      - name: "Clean up deprecated import specifiers"
+        js-ast-grep:
+          js_file: scripts/update-imports.ts
+          language: tsx
+   
