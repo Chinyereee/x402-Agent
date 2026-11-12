@@ -24,3 +24,13 @@ Real x402 payments on Stellar testnet: the agent reads the price out of the 402,
 For now the seller is the workshop kit's paid API (github.com/KoxyG/x402-stellar-empower-Her, run locally on port 4021). Switching to the codemod engine means changing `SERVICE_BASE_URL`, `SERVICE_NAME` and `SERVICE_PAYTO`.
 
 Setup: create `wallet/.env.local` (never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_USDC_CONTRACT`, `WALLET_EXPLORER_URL`, `SERVICE_BASE_URL`, `SERVICE_NAME`, `SERVICE_PAYTO`. Receipts are stored in `wallet/data/` (git-ignored).
+
+## Rules in force, Home and the product page
+
+- `/hifi/rules`: the owner's plain-words rules. Confirming saves them (`wallet/data/rules.json`); every live payment is checked against them. Anything not understood is listed and nothing is saved.
+- `/hifi`: Home with the allowance and receipts from real testnet payments.
+- `/about`: a one-page product explainer (problem, how it works, on-chain limits, familiar forms, proof links, architecture, team).
+
+## On-chain limits (testnet)
+
+`node scripts/setup-owner.mjs 0.10` creates Lina's owner wallet (Friendbot, USDC trustline) and moves the agent's test USDC into it, leaving a 0.10 float. On `/hifi/live` the owner grants an allowance (SEP-41 `approve`, expiring at month end) or revokes it. Before each payment the agent tops up its float with `transfer_from`; over the allowance, after expiry or after a revoke, the USDC contract refuses it and nothing is paid. x402 still pays from the agent's own account, as the standard `exact` scheme requires. The owner key lives in `.env.local` for the demo only; in the product she would sign in her own wallet.
