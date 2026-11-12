@@ -9,7 +9,7 @@ import { wrapFetchWithPaymentFromConfig, decodePaymentResponseHeader } from "@x4
 import { createEd25519Signer } from "@x402/stellar";
 import { ExactStellarScheme } from "@x402/stellar/exact/client";
 import { check, type Check, type Rules } from "./rules.ts";
-import { UNITS } from "./money.ts";
+import { readRules } from "./rules-store.ts";
 
 const env = (key: string) => {
   const v = process.env[key];
@@ -19,15 +19,10 @@ const env = (key: string) => {
 
 const network = () => env("WALLET_NETWORK") as `${string}:${string}`;
 
-export function rules(): Rules {
-  return {
-    monthlyBudget: 2 * UNITS,
-    capPerPayment: 0.25 * UNITS,
-    allow: [{ name: env("SERVICE_NAME"), payTo: env("SERVICE_PAYTO"), keywords: [] }],
-  };
+// The rules the owner confirmed in plain words (see rules-store.ts).
+export async function rules(): Promise<Rules> {
+  return (await readRules()).rules;
 }
-
-export const RULES_TEXT = "$2 a month, at most $0.25 a payment, only the services I list";
 
 // Sellers the agent can call. "other" is a second seller that is not on the owner's list.
 export type Seller = "main" | "other";
@@ -88,7 +83,7 @@ export function ledger(all: LiveReceipt[]) {
 
 export async function available() {
   const l = ledger(await readReceipts());
-  return rules().monthlyBudget - l.paidThisMonth - l.pending;
+  return (await rules()).monthlyBudget - l.paidThisMonth - l.pending;
 }
 
 // The seller's USDC balance on Stellar, read from Horizon: the real cash drawer.
@@ -97,7 +92,7 @@ export async function sellerBalance(payTo = env("SERVICE_PAYTO")): Promise<numbe
   if (!res.ok) return 0;
   const acc = await res.json();
   const b = acc.balances?.find((x: { asset_code?: string; asset_issuer?: string }) => x.asset_code === "USDC" && x.asset_issuer === env("WALLET_USDC_ISSUER"));
-  return b ? Math.round(Number(b.balance) * UNITS) : 0;
+  return b ? Math.round(Number(b.balance) * 10_000_000) : 0;
 }
 
 type Quote = { amount: number; payTo: string; description: string };
@@ -163,11 +158,12 @@ async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt
 export async function buy(pathname: string, seller: Seller = "main", emit: Emit = quiet): Promise<LiveReceipt> {
   emit({ type: "request", path: pathname, seller });
   const q = await quote(`${sellerBase(seller)}${pathname}`);
-  const allowed = rules().allow.find((s) => s.payTo === q.payTo);
+  const r0 = await rules();
+  const allowed = r0.allow.find((s) => s.payTo === q.payTo);
   const service = allowed?.name ?? "Unknown seller";
   emit({ type: "quote", amount: q.amount, payTo: q.payTo, description: q.description, service });
   const all = await readReceipts();
-  const decision = check(rules(), { payTo: q.payTo, amount: q.amount, what: pathname }, ledger(all));
+  const decision = check(r0, { payTo: q.payTo, amount: q.amount, what: pathname }, ledger(all));
   emit({ type: "rules", checks: decision.checks, outcome: decision.outcome, available: await available() });
   const r: LiveReceipt = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,

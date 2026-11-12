@@ -27,7 +27,7 @@ export function Nav() {
           </Link>
         ))}
       </nav>
-      <span className="proto">{path === "/hifi/live" ? "Stellar testnet · real x402 payments with test money" : "Prototype · sample data, no real payments"}</span>
+      <span className="proto">{["/hifi", "/hifi/live", "/hifi/rules"].includes(path) || path.startsWith("/hifi/receipts") ? "Stellar testnet · real x402 payments with test money" : "Prototype · sample data, no real payments"}</span>
     </header>
   );
 }

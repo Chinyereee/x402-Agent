@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
-import { answer, buy, ledger, readReceipts, rules, RULES_TEXT, sellerBalance } from "@/lib/live.ts";
+import { answer, buy, ledger, readReceipts, sellerBalance } from "@/lib/live.ts";
+import { readRules } from "@/lib/rules-store.ts";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   const receipts = await readReceipts();
-  const r = rules();
+  const { rules: r, text } = await readRules();
   const drawer = await sellerBalance().catch(() => 0);
-  return NextResponse.json({ receipts, drawer, ledger: ledger(receipts), rules: { monthlyBudget: r.monthlyBudget, capPerPayment: r.capPerPayment, allow: r.allow.map((s) => s.name), text: RULES_TEXT } });
+  return NextResponse.json({ receipts, drawer, ledger: ledger(receipts), rules: { monthlyBudget: r.monthlyBudget, capPerPayment: r.capPerPayment, allow: r.allow.map((s) => s.name), text } });
 }
 
 export async function POST(req: Request) {

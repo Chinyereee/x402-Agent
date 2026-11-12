@@ -4,14 +4,15 @@ import { Decide } from "@/components/Decide.tsx";
 import { Pill } from "@/components/Pill.tsx";
 import { usd } from "@/lib/money.ts";
 import { RECEIPTS } from "@/lib/sample.ts";
+import { readReceipts } from "@/lib/live.ts";
+import { fromLive } from "@/lib/receipt-view.ts";
 
-export function generateStaticParams() {
-  return RECEIPTS.map((r) => ({ id: r.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const r = RECEIPTS.find((x) => x.id === id);
+  const liveOne = (await readReceipts()).find((x) => x.id === id);
+  const r: (typeof RECEIPTS)[number] & { link?: string } | undefined = liveOne ? fromLive(liveOne) : RECEIPTS.find((x) => x.id === id);
   if (!r) notFound();
 
   return (
@@ -28,10 +29,10 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
             <dt>Why</dt><dd>{r.why}</dd>
             <dt>Paid to</dt><dd>{r.service}</dd>
             {r.pr && <><dt>Result</dt><dd><span className="sample">{r.pr}</span></dd></>}
-            {r.tx && <><dt>Transaction</dt><dd><span className="sample">{r.tx}</span> on Stellar testnet</dd></>}
+            {r.tx && <><dt>Transaction</dt><dd>{r.link ? <a href={r.link} target="_blank" rel="noreferrer">{r.tx} ↗</a> : <span className="sample">{r.tx}</span>} on Stellar testnet</dd></>}
             {r.expiresIn && <><dt>Signature</dt><dd>Expires in {r.expiresIn} if the work is not delivered</dd></>}
           </dl>
-          {r.status === "needs_you" && <Decide amount={usd(r.amount)} />}
+          {r.status === "needs_you" && (liveOne ? <p className="muted small">Decide on the <Link href="/hifi/live">live page</Link>.</p> : <Decide amount={usd(r.amount)} />)}
         </section>
 
         <section className="card">
