@@ -40,3 +40,10 @@ test("pending counts against the budget", () => {
   const nearlySpent = { paidThisMonth: 19_000_000, pending: 600_000 };
   assert.equal(check(rules, { payTo: "GENGINE", amount: 500_000, what: "" }, nearlySpent).outcome, "ask");
 });
+
+test("reads a list of allowed services", () => {
+  const solar: Service = { name: "Solar Data", payTo: "GSOLAR", keywords: ["solar"] };
+  const p = parseRules("$2 a month, at most $0.25 a payment, only the Solar Data and codemod services", [solar, codemod]);
+  assert.deepEqual(p.unread, []);
+  assert.deepEqual(p.rules.allow?.map((s) => s.name), ["Solar Data", "Codemod engine"]);
+});

@@ -32,11 +32,12 @@ export function parseRules(text: string, services: Service[]): Parsed {
     } else if (amount !== null && /\b(a|per|each|every)\s+month|monthly/.test(lower)) {
       rules.monthlyBudget = amount;
       understood.push(`${usd(amount)} a month`);
-    } else if (/\bonly\b/.test(lower)) {
+    } else if (/\bonly\b/.test(lower) || (rules.allow && amount === null)) {
+      // "only the X service", and any services listed after it ("…, and the Y service").
       const hits = services.filter((s) => s.keywords.some((k) => lower.includes(k)));
       if (hits.length) {
-        rules.allow = hits;
-        understood.push(`Only ${hits.map((s) => s.name).join(", ")}`);
+        rules.allow = [...(rules.allow ?? []), ...hits.filter((h) => !rules.allow?.some((a) => a.payTo === h.payTo))];
+        understood.push(`Only ${rules.allow.map((s) => s.name).join(", ")}`);
       } else unread.push(part);
     } else unread.push(part);
   }
