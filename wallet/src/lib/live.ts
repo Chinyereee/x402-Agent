@@ -10,6 +10,7 @@ import { createEd25519Signer } from "@x402/stellar";
 import { ExactStellarScheme } from "@x402/stellar/exact/client";
 import { check, type Check, type Rules } from "./rules.ts";
 import { readRules } from "./rules-store.ts";
+import { ensureFloat } from "./allowance.ts";
 
 const env = (key: string) => {
   const v = process.env[key];
@@ -52,6 +53,7 @@ export type LiveEvent =
   | { type: "quote"; amount: number; payTo: string; description: string; service: string }
   | { type: "rules"; checks: Check[]; outcome: "pay" | "ask" | "block"; available: number }
   | { type: "blocked" | "ask" | "declined" | "failed"; receipt: LiveReceipt }
+  | { type: "topup"; amount: number; link: string }
   | { type: "signed"; available: number }
   | { type: "settled"; receipt: LiveReceipt }
   | { type: "drawer"; balance: number };
@@ -126,6 +128,9 @@ function payingFetch(q: Quote, onSigned: () => void) {
 
 async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt> {
   try {
+    // On-chain limit: the agent's float is topped up from Lina's allowance; Stellar enforces its cap and expiry.
+    const t = await ensureFloat(q.amount);
+    if (t) emit({ type: "topup", amount: t.amount, link: `${env("WALLET_EXPLORER_URL")}/tx/${t.hash}` });
     const res = await payingFetch(q, async () => {
       r.status = "pending"; // signed, not yet settled: counts against the allowance
       await save(r);
@@ -144,7 +149,8 @@ async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt
     }
   } catch (e) {
     r.status = "failed";
-    r.note = `Payment error: ${(e as Error).message}. Nothing was paid.`;
+    const m = (e as Error).message;
+    r.note = m.startsWith("Stellar refused") ? m : `Payment error: ${m}. Nothing was paid.`;
   }
   await save(r);
   if (r.status === "paid") {

@@ -30,6 +30,7 @@ type Ev =
   | { type: "quote"; amount: number; payTo: string; description: string; service: string }
   | { type: "rules"; checks: Check[]; outcome: "pay" | "ask" | "block"; available: number }
   | { type: "blocked" | "ask" | "declined" | "failed"; receipt: Receipt }
+  | { type: "topup"; amount: number; link: string }
   | { type: "signed"; available: number }
   | { type: "settled"; receipt: Receipt }
   | { type: "drawer"; balance: number }
@@ -109,6 +110,14 @@ export function liveSteps(e: Ev, setScript: (f: (s: Script) => Script) => void):
       return [{
         wait: 0, buyer: { status: "Declined by you", tone: "declined", checks: 3, note: "Nothing was signed or paid." }, seller: { status: "No payment came" },
         print: [{ k: "text", left: "DECLINED", right: "by Lina", strong: true }], stamp: "void",
+      }];
+    case "topup":
+      return [{
+        wait: 0,
+        buyer: { status: "Topped up on Stellar", tone: "work", checks: 3, note: `+${usdc(e.amount)} USDC from Lina's on-chain allowance` },
+        seller: { status: "Waiting for payment" },
+        print: [{ k: "text", left: "TOP-UP", right: `${usdc(e.amount)} from allowance` }],
+        familiar: ["Allowance enforced on Stellar", "A prepaid card whose limit the bank enforces"],
       }];
     case "signed":
       return [

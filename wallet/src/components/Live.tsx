@@ -25,12 +25,30 @@ const STAMP: Record<LiveReceipt["status"], string> = {
   paid: "PAID", pending: "PENDING", needs_you: "NEEDS YOU", blocked: "VOID", declined: "DECLINED", failed: "FAILED",
 };
 
+type Allowance = {
+  enabled: boolean; owner?: string; agent?: string; allowance?: number; agentFloat?: number; ownerBalance?: number;
+  untilISO?: string | null; expired?: boolean; explorer?: string;
+  history?: { at: string; kind: string; amount: number; hash?: string; note?: string }[];
+};
+
 export function Live() {
   const [state, setState] = useState<State | null>(null);
+  const [allow, setAllow] = useState<Allowance | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => setState(await (await fetch("/api/live")).json()), []);
+  const load = useCallback(async () => {
+    const [a, b] = await Promise.all([fetch("/api/live").then((r) => r.json()), fetch("/api/allowance").then((r) => r.json())]);
+    setState(a); setAllow(b);
+  }, []);
+
+  async function setAllowance(action: "grant" | "revoke") {
+    setBusy(action); setError(null);
+    try {
+      const res = await fetch("/api/allowance", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ action }) });
+      if (!res.ok) setError((await res.json()).error ?? "Stellar refused it");
+    } finally { setBusy(null); load(); }
+  }
   useEffect(() => { load(); }, [load]);
 
   async function post(body: object, key: string) {
@@ -58,6 +76,28 @@ export function Live() {
           <div className="st-card-limit">LIMIT {usd(rules.monthlyBudget)} / MONTH · {usd(rules.capPerPayment)} / PAYMENT</div>
         </div>
         <p className="lv-rules">&ldquo;{rules.text}&rdquo;<br /><span className="muted small">Allowed: {rules.allow.join(", ")}</span></p>
+
+        {allow?.enabled && (
+          <div className="lv-onchain">
+            <div className="lv-onchain-head"><b>On-chain allowance</b><span className="muted small">enforced by Stellar</span></div>
+            <div className="lv-onchain-row"><span>Left for the agent</span><b>{usdc(allow.allowance ?? 0)}</b></div>
+            <div className="lv-onchain-row"><span>Expires</span><b>{allow.untilISO ? new Date(allow.untilISO).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</b></div>
+            <div className="lv-onchain-row"><span>Agent&apos;s float</span><b>{usdc(allow.agentFloat ?? 0)}</b></div>
+            <p className="muted small">The agent keeps a small float and tops it up from Lina&apos;s wallet. Over the allowance or after it expires, Stellar refuses the top-up.</p>
+            <div className="lv-ask">
+              <button className="btn primary" disabled={!!busy} onClick={() => setAllowance("grant")}>{busy === "grant" ? "Signing…" : `Grant ${usd(available)} to month end`}</button>
+              <button className="btn ghost" disabled={!!busy} onClick={() => setAllowance("revoke")}>{busy === "revoke" ? "Signing…" : "Revoke"}</button>
+            </div>
+            <ul className="lv-hist">
+              {(allow.history ?? []).map((h, i) => (
+                <li key={i}>
+                  <span>{h.kind === "approve" ? "Granted" : h.kind === "revoke" ? "Revoked" : h.kind === "topup" ? "Top-up" : "Refused by Stellar"} {h.kind !== "revoke" ? usdc(h.amount) : ""}</span>
+                  {h.hash ? <a href={`${allow.explorer}/tx/${h.hash}`} target="_blank" rel="noreferrer">tx ↗</a> : <span className="muted">{h.note}</span>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <h2>Ask the agent to buy</h2>
         <div className="lv-items">

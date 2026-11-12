@@ -18,3 +18,9 @@
 .lv-stamp.pending, .lv-stamp.needs_you { color: var(--ask); }
 .lv-stamp.blocked, .lv-stamp.declined, .lv-stamp.failed { color: var(--block); }
 @media (max-width: 900px) { .lv { grid-template-columns: 1fr; } }
+.lv-onchain { margin-top: 16px; background: var(--card); border-radius: 14px; box-shadow: var(--shadow), 0 0 0 1px var(--line); padding: 14px 16px; }
+.lv-onchain-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+.lv-onchain-row { display: flex; justify-content: space-between; font-size: 14px; padding: 3px 0; }
+.lv-onchain-row b { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.lv-hist { list-style: none; padding: 0; margin: 10px 0 0; font-size: 12.5px; display: flex; flex-direction: column; gap: 4px; }
+.lv-hist li { display: flex; justify-content: space-between; gap: 8px; }
