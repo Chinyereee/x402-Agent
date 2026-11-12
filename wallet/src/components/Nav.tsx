@@ -7,6 +7,7 @@ const LINKS = [
   { href: "/hifi", label: "Home" },
   { href: "/hifi/rules", label: "Rules" },
   { href: "/hifi/console", label: "Demo console" },
+  { href: "/hifi/live", label: "Live" },
   { href: "/", label: "Lo-fi" },
 ];
 
@@ -26,7 +27,7 @@ export function Nav() {
           </Link>
         ))}
       </nav>
-      <span className="proto">Prototype · sample data, no real payments</span>
+      <span className="proto">{path === "/hifi/live" ? "Stellar testnet · real x402 payments with test money" : "Prototype · sample data, no real payments"}</span>
     </header>
   );
 }

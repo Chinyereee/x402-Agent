@@ -9,9 +9,14 @@
     "test": "node --experimental-strip-types --test src/lib/*.test.ts"
   },
   "dependencies": {
+    "@stellar/stellar-sdk": "^16.4.1",
+    "@x402/core": "^2.30.0",
+    "@x402/fetch": "^2.30.0",
+    "@x402/stellar": "^2.30.0",
     "next": "16.3.8",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@types/node": "^22",

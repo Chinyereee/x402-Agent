@@ -11,3 +11,6 @@ dist/
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# wallet local data (receipts from live testnet runs)
+/wallet/data/

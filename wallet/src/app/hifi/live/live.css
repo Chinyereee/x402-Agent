@@ -1,0 +1,20 @@
+.lv { display: grid; grid-template-columns: 340px 1fr; gap: 32px; align-items: start; }
+.lv-side h2 { margin-top: 22px; }
+.lv-rules { color: var(--sub); font-style: italic; margin: 4px 0 0; }
+.lv-rules .small { font-style: normal; }
+.lv-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.lv-item { display: flex; justify-content: space-between; align-items: center; border: 0; background: var(--card); box-shadow: var(--shadow), 0 0 0 1px var(--line); border-radius: 12px; padding: 12px 14px; color: var(--ink); font-weight: 500; text-align: left; }
+.lv-item:hover:not(:disabled) { box-shadow: var(--shadow), 0 0 0 1.5px var(--primary); }
+.lv-item:disabled { opacity: .6; cursor: default; }
+.lv-item b { font-family: var(--mono, ui-monospace); }
+.lv-error { color: var(--block); font-size: 13px; }
+.lv-receipts { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px; align-items: start; }
+.lv-paper { width: auto; margin: 0; --mono: "IBM Plex Mono", ui-monospace, monospace; }
+.lv-desc span, .lv-note span { white-space: normal; color: #55555d; }
+.lv-tx { color: #1b3a8a; text-decoration: underline; }
+.lv-ask { display: flex; gap: 8px; margin-top: 10px; }
+.lv-stamp { top: 52px; right: 12px; font-size: 18px; }
+.lv-stamp.paid { color: var(--paid); }
+.lv-stamp.pending, .lv-stamp.needs_you { color: var(--ask); }
+.lv-stamp.blocked, .lv-stamp.declined, .lv-stamp.failed { color: var(--block); }
+@media (max-width: 900px) { .lv { grid-template-columns: 1fr; } }
