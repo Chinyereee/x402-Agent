@@ -1,6 +1,7 @@
 // Live testnet payments for the Receipts wallet (server only).
 // Reads the price out of a 402, checks the owner's rules in code, then pays through x402
 // and keeps a receipt with the real Stellar transaction. Testnet only.
+// Every step can be reported as it happens (emit), so the UI prints only real events.
 import "server-only";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -28,11 +29,16 @@ export function rules(): Rules {
 
 export const RULES_TEXT = "$2 a month, at most $0.25 a payment, only the services I list";
 
+// Sellers the agent can call. "other" is a second seller that is not on the owner's list.
+export type Seller = "main" | "other";
+const sellerBase = (s: Seller) => env(s === "main" ? "SERVICE_BASE_URL" : "OTHER_SERVICE_BASE_URL");
+
 export type LiveStatus = "paid" | "pending" | "needs_you" | "blocked" | "declined" | "failed";
 
 export type LiveReceipt = {
   id: string;
   at: string;
+  seller: Seller;
   path: string;
   service: string;
   description: string;
@@ -45,6 +51,18 @@ export type LiveReceipt = {
   link?: string;
   data?: unknown;
 };
+
+export type LiveEvent =
+  | { type: "request"; path: string; seller: Seller }
+  | { type: "quote"; amount: number; payTo: string; description: string; service: string }
+  | { type: "rules"; checks: Check[]; outcome: "pay" | "ask" | "block"; available: number }
+  | { type: "blocked" | "ask" | "declined" | "failed"; receipt: LiveReceipt }
+  | { type: "signed"; available: number }
+  | { type: "settled"; receipt: LiveReceipt }
+  | { type: "drawer"; balance: number };
+
+type Emit = (e: LiveEvent) => void;
+const quiet: Emit = () => {};
 
 const STORE = path.join(process.cwd(), "data", "receipts.json");
 
@@ -68,34 +86,56 @@ export function ledger(all: LiveReceipt[]) {
   return { paidThisMonth: sum("paid"), pending: sum("pending") };
 }
 
+export async function available() {
+  const l = ledger(await readReceipts());
+  return rules().monthlyBudget - l.paidThisMonth - l.pending;
+}
+
+// The seller's USDC balance on Stellar, read from Horizon: the real cash drawer.
+export async function sellerBalance(payTo = env("SERVICE_PAYTO")): Promise<number> {
+  const res = await fetch(`${env("WALLET_HORIZON_URL")}/accounts/${payTo}`);
+  if (!res.ok) return 0;
+  const acc = await res.json();
+  const b = acc.balances?.find((x: { asset_code?: string; asset_issuer?: string }) => x.asset_code === "USDC" && x.asset_issuer === env("WALLET_USDC_ISSUER"));
+  return b ? Math.round(Number(b.balance) * UNITS) : 0;
+}
+
 type Quote = { amount: number; payTo: string; description: string };
 
 // Read the price out of a 402 WITHOUT paying.
-async function quote(url: string): Promise<Quote | { free: unknown } | { error: string }> {
+async function quote(url: string): Promise<Quote> {
   const res = await fetch(url);
-  if (res.status !== 402) return res.ok ? { free: await res.json() } : { error: `HTTP ${res.status}` };
+  if (res.status !== 402) throw new Error(res.ok ? "This resource is free; nothing to pay." : `HTTP ${res.status}`);
   const header = res.headers.get("PAYMENT-REQUIRED");
-  if (!header) return { error: "402 without PAYMENT-REQUIRED" };
+  if (!header) throw new Error("402 without PAYMENT-REQUIRED");
   const { resource, accepts } = JSON.parse(Buffer.from(header, "base64").toString("utf8"));
   const offer = accepts.find((o: { network: string; asset: string }) => o.network === network() && o.asset === env("WALLET_USDC_CONTRACT"));
-  if (!offer) return { error: "no USDC offer on this network" };
+  if (!offer) throw new Error("no USDC offer on this network");
   return { amount: Number(offer.amount), payTo: offer.payTo, description: resource?.description ?? "" };
 }
 
 // A fetch that signs at most the approved amount, to the approved address.
-function payingFetch(q: Quote) {
+// The inner fetch reports the moment the signed retry leaves the wallet.
+function payingFetch(q: Quote, onSigned: () => void) {
   const signer = createEd25519Signer(env("WALLET_AGENT_SECRET"), network());
-  return wrapFetchWithPaymentFromConfig(fetch, {
+  const observed: typeof fetch = (input, init) => {
+    const h = new Headers(init?.headers ?? (input instanceof Request ? input.headers : undefined));
+    if (h.has("PAYMENT-SIGNATURE")) onSigned();
+    return fetch(input, init);
+  };
+  return wrapFetchWithPaymentFromConfig(observed, {
     schemes: [{ network: network(), client: new ExactStellarScheme(signer, { url: env("WALLET_RPC_URL") }) }],
     policies: [(_v, offers) => offers.filter((o) => Number(o.amount) <= q.amount && o.payTo === q.payTo)],
   });
 }
 
-async function settle(r: LiveReceipt, q: Quote): Promise<LiveReceipt> {
-  r.status = "pending"; // signed, not yet settled: counts against the allowance
-  await save(r);
+async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt> {
   try {
-    const res = await payingFetch(q)(`${env("SERVICE_BASE_URL")}${r.path}`);
+    const res = await payingFetch(q, async () => {
+      r.status = "pending"; // signed, not yet settled: counts against the allowance
+      await save(r);
+      emit({ type: "signed", available: await available() });
+    })(`${sellerBase(r.seller)}${r.path}`);
     const header = res.headers.get("PAYMENT-RESPONSE");
     const s = header ? decodePaymentResponseHeader(header) : null;
     if (!res.ok || !s?.success) {
@@ -112,45 +152,62 @@ async function settle(r: LiveReceipt, q: Quote): Promise<LiveReceipt> {
     r.note = `Payment error: ${(e as Error).message}. Nothing was paid.`;
   }
   await save(r);
+  if (r.status === "paid") {
+    emit({ type: "settled", receipt: r });
+    emit({ type: "drawer", balance: await sellerBalance(r.payTo) });
+  } else emit({ type: "failed", receipt: r });
   return r;
 }
 
 // The agent asks to buy one paid resource. The wallet decides.
-export async function buy(pathname: string): Promise<LiveReceipt> {
-  const q = await quote(`${env("SERVICE_BASE_URL")}${pathname}`);
-  if ("error" in q) throw new Error(q.error);
-  if ("free" in q) throw new Error("This resource is free; nothing to pay.");
+export async function buy(pathname: string, seller: Seller = "main", emit: Emit = quiet): Promise<LiveReceipt> {
+  emit({ type: "request", path: pathname, seller });
+  const q = await quote(`${sellerBase(seller)}${pathname}`);
+  const allowed = rules().allow.find((s) => s.payTo === q.payTo);
+  const service = allowed?.name ?? "Unknown seller";
+  emit({ type: "quote", amount: q.amount, payTo: q.payTo, description: q.description, service });
   const all = await readReceipts();
   const decision = check(rules(), { payTo: q.payTo, amount: q.amount, what: pathname }, ledger(all));
+  emit({ type: "rules", checks: decision.checks, outcome: decision.outcome, available: await available() });
   const r: LiveReceipt = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
     at: new Date().toISOString(),
+    seller,
     path: pathname,
-    service: rules().allow.find((s) => s.payTo === q.payTo)?.name ?? "Unknown service",
+    service,
     description: q.description,
     amount: q.amount,
     payTo: q.payTo,
     status: decision.outcome === "block" ? "blocked" : decision.outcome === "ask" ? "needs_you" : "pending",
     checks: decision.checks,
   };
-  if (decision.outcome !== "pay") {
-    r.note = decision.outcome === "block" ? "Not on your list. Nothing was signed." : "Over your cap. Waiting for you; nothing signed yet.";
+  if (decision.outcome === "block") {
+    r.note = "Not on your list. Nothing was signed.";
     await save(r);
+    emit({ type: "blocked", receipt: r });
     return r;
   }
-  return settle(r, q);
+  if (decision.outcome === "ask") {
+    r.note = "Over your cap. Waiting for you; nothing signed yet.";
+    await save(r);
+    emit({ type: "ask", receipt: r });
+    return r;
+  }
+  return settle(r, q, emit);
 }
 
 // The owner answers a "Needs you" receipt.
-export async function answer(id: string, allow: boolean): Promise<LiveReceipt> {
+export async function answer(id: string, allow: boolean, emit: Emit = quiet): Promise<LiveReceipt> {
   const r = (await readReceipts()).find((x) => x.id === id);
   if (!r || r.status !== "needs_you") throw new Error("Nothing waiting with that id.");
+  r.seller ??= "main";
   if (!allow) {
     r.status = "declined";
     r.note = "You said no. Nothing was signed or paid.";
     await save(r);
+    emit({ type: "declined", receipt: r });
     return r;
   }
   r.note = "Allowed once by you. Your rules stay the same.";
-  return settle(r, { amount: r.amount, payTo: r.payTo, description: r.description });
+  return settle(r, { amount: r.amount, payTo: r.payTo, description: r.description }, emit);
 }

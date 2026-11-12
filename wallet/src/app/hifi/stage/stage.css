@@ -167,3 +167,4 @@
 .st-act.declined { color: var(--sub); }
 .st-act.declined b { text-decoration: line-through; }
 .st-act.declined .st-act-label { color: var(--block); font-weight: 600; }
+.rc-link { color: #1b3a8a; text-decoration: underline; font-size: 11.5px; }

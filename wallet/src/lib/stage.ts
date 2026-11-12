@@ -9,7 +9,8 @@ export type Line =
   | { k: "rule" }
   | { k: "sign" }
   | { k: "signed" }
-  | { k: "barcode"; label: string };
+  | { k: "barcode"; label: string }
+  | { k: "link"; label: string; href: string };
 
 export type Slip = { label: string; dir: "ltr" | "rtl"; coin?: string };
 
@@ -23,6 +24,8 @@ export type Step = {
   available?: number; // cents
   familiar?: [string, string];
   drawer?: boolean;
+  receivedAbs?: number; // live: the seller's real balance, in cents
+  askId?: string; // live: the receipt waiting for the owner
 };
 
 export type Script = {
