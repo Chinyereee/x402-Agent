@@ -26,8 +26,14 @@ export async function rules(): Promise<Rules> {
 }
 
 // Sellers the agent can call. "other" is a second seller that is not on the owner's list.
-export type Seller = "main" | "other";
-const sellerBase = (s: Seller) => env(s === "main" ? "SERVICE_BASE_URL" : "OTHER_SERVICE_BASE_URL");
+export type Seller = "main" | "other" | "engine";
+const sellerBase = (s: Seller) => env(s === "main" ? "SERVICE_BASE_URL" : s === "engine" ? "ENGINE_BASE_URL" : "OTHER_SERVICE_BASE_URL");
+
+// The engine sells a job: POST the repository to upgrade. The workshop kit sells data: GET.
+function requestInit(s: Seller): RequestInit | undefined {
+  if (s !== "engine") return undefined;
+  return { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ repoUrl: env("ENGINE_TEST_REPO") }) };
+}
 
 export type LiveStatus = "paid" | "pending" | "needs_you" | "blocked" | "declined" | "failed";
 
@@ -100,9 +106,13 @@ export async function sellerBalance(payTo = env("SERVICE_PAYTO")): Promise<numbe
 type Quote = { amount: number; payTo: string; description: string };
 
 // Read the price out of a 402 WITHOUT paying.
-async function quote(url: string): Promise<Quote> {
-  const res = await fetch(url);
-  if (res.status !== 402) throw new Error(res.ok ? "This resource is free; nothing to pay." : `HTTP ${res.status}`);
+async function quote(url: string, init?: RequestInit): Promise<Quote> {
+  const res = await fetch(url, init);
+  if (res.status !== 402) {
+    if (res.ok) throw new Error("This resource is free; nothing to pay.");
+    const why = await res.text().catch(() => "");
+    throw new Error(`The seller said no before asking for payment (HTTP ${res.status}${why ? `: ${why.slice(0, 120)}` : ""}). Nothing was asked or paid.`);
+  }
   const header = res.headers.get("PAYMENT-REQUIRED");
   if (!header) throw new Error("402 without PAYMENT-REQUIRED");
   const { resource, accepts } = JSON.parse(Buffer.from(header, "base64").toString("utf8"));
@@ -135,7 +145,7 @@ async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt
       r.status = "pending"; // signed, not yet settled: counts against the allowance
       await save(r);
       emit({ type: "signed", available: await available() });
-    })(`${sellerBase(r.seller)}${r.path}`);
+    })(`${sellerBase(r.seller)}${r.path}`, requestInit(r.seller));
     const header = res.headers.get("PAYMENT-RESPONSE");
     const s = header ? decodePaymentResponseHeader(header) : null;
     if (!res.ok || !s?.success) {
@@ -163,7 +173,7 @@ async function settle(r: LiveReceipt, q: Quote, emit: Emit): Promise<LiveReceipt
 // The agent asks to buy one paid resource. The wallet decides.
 export async function buy(pathname: string, seller: Seller = "main", emit: Emit = quiet): Promise<LiveReceipt> {
   emit({ type: "request", path: pathname, seller });
-  const q = await quote(`${sellerBase(seller)}${pathname}`);
+  const q = await quote(`${sellerBase(seller)}${pathname}`, requestInit(seller));
   const r0 = await rules();
   const allowed = r0.allow.find((s) => s.payTo === q.payTo);
   const service = allowed?.name ?? "Unknown seller";

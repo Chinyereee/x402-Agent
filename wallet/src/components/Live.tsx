@@ -8,11 +8,12 @@ const usd = (units: number) => `$${(units / UNITS).toFixed(units < 0.01 * UNITS 
 const usdc = (units: number) => `${(units / UNITS).toFixed(3)} USDC`;
 
 // What the agent can ask for on the workshop kit's paid API.
-const ITEMS = [
+const ITEMS: { path: string; what: string; price: string; seller?: string }[] = [
   { path: "/paid/sun-forecast", what: "Sun forecast", price: "$0.001" },
   { path: "/paid/installers", what: "Solar installers", price: "$0.002" },
   { path: "/paid/supplier-prices", what: "Inverter prices", price: "$0.01" },
   { path: "/paid/market-report", what: "Full market report", price: "$0.50" },
+  { path: "/api/v1/migrate", what: "Codemod: ethers v5 → v6", price: "$0.05", seller: "engine" },
 ];
 
 type State = {
@@ -102,7 +103,7 @@ export function Live() {
         <h2>Ask the agent to buy</h2>
         <div className="lv-items">
           {ITEMS.map((it) => (
-            <button key={it.path} className="lv-item" disabled={!!busy} onClick={() => post({ action: "buy", path: it.path }, it.path)}>
+            <button key={it.path} className="lv-item" disabled={!!busy} onClick={() => post({ action: "buy", path: it.path, seller: it.seller ?? "main" }, it.path)}>
               <span>{it.what}</span>
               <b>{busy === it.path ? "Paying…" : it.price}</b>
             </button>
