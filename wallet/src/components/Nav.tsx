@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const LINKS = [
@@ -14,7 +15,10 @@ const LINKS = [
 // The prototype's nav lives under /hifi only; the lo-fi board at / stands on its own.
 export function Nav() {
   const path = usePathname();
-  if (!path.startsWith("/hifi") || path === "/hifi/stage") return null;
+  // Opened inside the workspace's app area (an iframe): the workspace has its own navigation.
+  const [embedded, setEmbedded] = useState(false);
+  useEffect(() => setEmbedded(window.self !== window.top), []);
+  if (embedded || !path.startsWith("/hifi") || path === "/hifi/stage") return null;
   return (
     <header className="top">
       <Link href="/hifi" className="brand">
