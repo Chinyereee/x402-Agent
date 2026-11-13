@@ -103,6 +103,22 @@ export async function sellerBalance(payTo = env("SERVICE_PAYTO")): Promise<numbe
   return b ? Math.round(Number(b.balance) * 10_000_000) : 0;
 }
 
+// "No trustline, no USDC": a plain USDC transfer to an account without a USDC trustline fails
+// (Error #13), and Protocol 26's SAC `trust` needs the payee's own signature, so a transfer never
+// opens one. Checked before signing. null when Horizon can't be reached: then we don't block.
+export async function canReceiveUsdc(payTo: string): Promise<boolean | null> {
+  if (payTo.startsWith("C")) return true; // contract addresses hold SAC balances without a trustline
+  try {
+    const res = await fetch(`${env("WALLET_HORIZON_URL")}/accounts/${payTo}`, { signal: AbortSignal.timeout(8_000) });
+    if (res.status === 404) return false; // the account does not exist at all
+    if (!res.ok) return null;
+    const acc = await res.json();
+    return !!acc.balances?.some((b: { asset_code?: string; asset_issuer?: string }) => b.asset_code === "USDC" && b.asset_issuer === env("WALLET_USDC_ISSUER"));
+  } catch {
+    return null;
+  }
+}
+
 type Quote = { amount: number; payTo: string; description: string };
 
 // Read the price out of a 402 WITHOUT paying.
@@ -180,6 +196,13 @@ export async function buy(pathname: string, seller: Seller = "main", emit: Emit 
   emit({ type: "quote", amount: q.amount, payTo: q.payTo, description: q.description, service });
   const all = await readReceipts();
   const decision = check(r0, { payTo: q.payTo, amount: q.amount, what: pathname }, ledger(all));
+  // A listed seller that can't hold USDC would only fail after signing; stop it here instead.
+  let cannotReceive = false;
+  if (decision.outcome !== "block" && (await canReceiveUsdc(q.payTo)) === false) {
+    cannotReceive = true;
+    decision.outcome = "block";
+    decision.checks = [...decision.checks, { rule: "Seller can receive USDC", ok: false, detail: "No USDC trustline on the seller's account" }];
+  }
   emit({ type: "rules", checks: decision.checks, outcome: decision.outcome, available: await available() });
   const r: LiveReceipt = {
     id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
@@ -194,7 +217,7 @@ export async function buy(pathname: string, seller: Seller = "main", emit: Emit 
     checks: decision.checks,
   };
   if (decision.outcome === "block") {
-    r.note = "Not on your list. Nothing was signed.";
+    r.note = cannotReceive ? "This seller can't receive USDC yet (no trustline). Nothing was signed." : "Not on your list. Nothing was signed.";
     await save(r);
     emit({ type: "blocked", receipt: r });
     return r;

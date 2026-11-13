@@ -70,8 +70,8 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
         step({ key: "topup", title: "Topped up from your on-chain allowance", detail: `+${usdc(e.amount)} USDC, Stellar enforces the limit`, tone: "ok" });
         break;
       case "signed":
-        step({ key: "signed", title: `Signed for exactly ${price.current} USDC`, detail: "Held, not settled: the engine only settles once the work is done", tone: "work" });
-        say("in", "PAYMENT-SIGNATURE received");
+        step({ key: "signed", title: `Signed for exactly ${price.current} USDC`, detail: "A Soroban auth entry for one USDC transfer. Held, not settled: the engine only settles once the work is done", tone: "work" });
+        say("in", "PAYMENT-SIGNATURE received: a Soroban auth entry for a USDC transfer");
         say("note", "verify with the facilitator: authorization checked, no funds move yet");
         say("note", "running the codemod");
         break;
