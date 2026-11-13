@@ -1,6 +1,6 @@
 // Reset the codemod demo repo from the command line, before a rehearsal or live judging.
-//   node --experimental-strip-types scripts/demo-reset.ts         shows what would be closed and deleted
-//   node --experimental-strip-types scripts/demo-reset.ts --yes   does it
+//   node --experimental-strip-types scripts/demo-reset.mts         shows what would be closed and deleted
+//   node --experimental-strip-types scripts/demo-reset.mts --yes   does it
 // Reads ENGINE_TEST_REPO, GITHUB_TOKEN and DEMO_BRANCH_PREFIX from the environment or .env.local.
 import { readFileSync, existsSync } from "node:fs";
 import { apply, plan } from "../src/lib/demo-reset.ts";
