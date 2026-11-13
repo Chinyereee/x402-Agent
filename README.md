@@ -11,7 +11,7 @@ Team 402 Found for EmpowerHer: Building the Agent Economy.
 
 The codemod the engine runs lives in [`/codemod`](codemod), with its full git history; [`codemod/HACKATHON.md`](codemod/HACKATHON.md) shows what existed before the hackathon and what we added.
 
-This README is the shared contract between the two modules. If anything here changes, change it here first and tell the other person.
+This README is the shared contract between the two modules. 
 
 ## Payment requirements (x402 v2)
 
@@ -86,12 +86,3 @@ A retry with the same payment returns the same `jobId` and pull request.
 - Fallback: Coinbase x402 facilitator, which supports Stellar testnet with sponsored fees.
 
 Source: [Stellar Developers, "What is x402?"](https://developers.stellar.org/docs/build/agentic-payments/x402)
-
-## Dates
-
-| Date | Milestone |
-|---|---|
-| 13 Nov | A paid "hello" endpoint settles one real testnet payment through the facilitator |
-| 16 Nov | Phase 2: wireframes, C4 diagrams, x402 overview |
-| 20 Nov | Full loop: preflight, GitHub App, settle on success, receipts |
-| 26–27 Nov | Demo and judging |
