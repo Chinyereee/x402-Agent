@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
 export default async function ReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const liveOne = (await readReceipts()).find((x) => x.id === id);
-  const r: (typeof RECEIPTS)[number] & { link?: string } | undefined = liveOne ? fromLive(liveOne) : RECEIPTS.find((x) => x.id === id);
+  const r: (typeof RECEIPTS)[number] & { link?: string; prLink?: string } | undefined = liveOne ? fromLive(liveOne) : RECEIPTS.find((x) => x.id === id);
   if (!r) notFound();
 
   return (
@@ -28,7 +28,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ id: st
           <dl className="kv" style={{ marginTop: 20 }}>
             <dt>Why</dt><dd>{r.why}</dd>
             <dt>Paid to</dt><dd>{r.service}</dd>
-            {r.pr && <><dt>Result</dt><dd><span className="sample">{r.pr}</span></dd></>}
+            {r.pr && <><dt>Result</dt><dd>{r.prLink ? <a href={r.prLink} target="_blank" rel="noreferrer">{r.pr} ↗</a> : <span className="sample">{r.pr}</span>}</dd></>}
             {r.tx && <><dt>Transaction</dt><dd>{r.link ? <a href={r.link} target="_blank" rel="noreferrer">{r.tx} ↗</a> : <span className="sample">{r.tx}</span>} on Stellar testnet</dd></>}
             {r.expiresIn && <><dt>Signature</dt><dd>Expires in {r.expiresIn} if the work is not delivered</dd></>}
           </dl>

@@ -18,7 +18,7 @@ export function Nav() {
   // Opened inside the workspace's app area (an iframe): the workspace has its own navigation.
   const [embedded, setEmbedded] = useState(false);
   useEffect(() => setEmbedded(window.self !== window.top), []);
-  if (embedded || !path.startsWith("/hifi") || path === "/hifi/stage") return null;
+  if (embedded || !path.startsWith("/hifi") || path === "/hifi/stage" || path === "/hifi/split") return null;
   return (
     <header className="top">
       <Link href="/hifi" className="brand">
