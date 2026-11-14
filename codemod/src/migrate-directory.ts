@@ -3,6 +3,7 @@ import path from 'path';
 
 import { runAll, PIPELINE_ORDER } from './transforms';
 
+import { updatePackageJson } from './transforms/updatePackageJson';
 /**
  * Programmatic entry point: migrate every ethers v5 file under a directory.
  * This is what tools such as the x402 engine call on a cloned repository.
@@ -35,6 +36,7 @@ export interface MigrationResult {
   todos: MigrationTodo[];
   /** Transforms that changed at least one file, in pipeline order */
   transformsApplied: string[];
+  packageJson: { changed: boolean; warnings: string[] };
 }
 
 const EXCLUDED_DIRS = new Set([
@@ -71,6 +73,7 @@ export function migrateDirectory(dir: string, options: MigrateOptions = {}): Mig
     failures: [],
     todos: [],
     transformsApplied: [],
+    packageJson: { changed: false, warnings: [] },
   };
   const applied = new Set<string>();
 
@@ -108,6 +111,9 @@ export function migrateDirectory(dir: string, options: MigrateOptions = {}): Mig
     });
   }
 
+    result.packageJson = updatePackageJson(dir, options.dryRun);
+  if (result.packageJson.changed) result.modified.push('package.json');
+  
   result.transformsApplied = PIPELINE_ORDER.filter((t) => applied.has(t));
   return result;
 }

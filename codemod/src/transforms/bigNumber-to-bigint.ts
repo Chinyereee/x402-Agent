@@ -167,6 +167,17 @@ export default function transform(file: FileInfo, api: API): string {
     if (node.type === 'CallExpression' && node.callee.type === 'Identifier' && node.callee.name === 'BigInt') {
       return true;
     }
+    // parseEther / parseUnits return a BigNumber in v5 and a bigint in v6
+    if (node.type === 'CallExpression') {
+      const c = node.callee;
+      const calleeName =
+        c.type === 'Identifier'
+          ? c.name
+          : c.type === 'MemberExpression' && !c.computed && c.property.type === 'Identifier'
+            ? c.property.name
+            : null;
+      if (calleeName === 'parseEther' || calleeName === 'parseUnits') return true;
+    }
     // already converted: a ** b, a - 1n, ...
     if (node.type === 'BinaryExpression' && BIGINT_BINARY_OPERATORS.has(node.operator)) {
       return isKnownBigNumber(node.left) || isKnownBigNumber(node.right);
