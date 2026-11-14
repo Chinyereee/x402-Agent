@@ -115,7 +115,7 @@ describe('POST /api/v1/migrate – preflight runs before any payment request', (
       github: gh,
       runJob: async (input) => {
         jobInput = input;
-        return okJob(input, { signal: new AbortController().signal });
+        return okJob(input, { signal: new AbortController().signal, onUnpaid: () => {} });
       },
     });
     const body = { repoUrl: 'https://github.com/lina/tutor-app' };

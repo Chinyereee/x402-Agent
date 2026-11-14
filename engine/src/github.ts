@@ -66,12 +66,22 @@ export class GitHubRest implements GitHubApi, PullRequestApi {
     owner: string,
     repo: string,
     pr: { head: string; base: string; title: string; body: string }
-  ): Promise<string> {
+  ): Promise<{ url: string; number: number }> {
     const res = await this.get(`/repos/${GitHubRest.enc(owner)}/${GitHubRest.enc(repo)}/pulls`, {
       method: 'POST',
       body: JSON.stringify(pr),
     });
     if (!res.ok) throw new Error(`GitHub ${res.status} opening a pull request on ${owner}/${repo}`);
-    return ((await res.json()) as { html_url: string }).html_url;
+    const r = (await res.json()) as { html_url: string; number: number };
+    return { url: r.html_url, number: r.number };
+  }
+
+  async withdrawPullRequest(owner: string, repo: string, number: number, branch: string): Promise<void> {
+    const base = `/repos/${GitHubRest.enc(owner)}/${GitHubRest.enc(repo)}`;
+    const closed = await this.get(`${base}/pulls/${number}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) });
+    if (!closed.ok) throw new Error(`GitHub ${closed.status} closing pull request #${number}`);
+    const ref = branch.split('/').map(GitHubRest.enc).join('/');
+    const deleted = await this.get(`${base}/git/refs/heads/${ref}`, { method: 'DELETE' });
+    if (!deleted.ok && deleted.status !== 422) throw new Error(`GitHub ${deleted.status} deleting ${branch}`);
   }
 }

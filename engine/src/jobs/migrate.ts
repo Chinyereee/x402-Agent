@@ -11,14 +11,16 @@ import type { JobResult, RunJob } from '../app.js';
 
 const run = promisify(execFile);
 
-/** The one GitHub write the job needs. Implemented by GitHubRest, faked in tests. */
+/** The GitHub writes the job needs. Implemented by GitHubRest, faked in tests. */
 export interface PullRequestApi {
-  /** Opens a pull request and returns its html_url */
+  /** Opens a pull request and returns its html_url and number */
   openPullRequest(
     owner: string,
     repo: string,
     pr: { head: string; base: string; title: string; body: string }
-  ): Promise<string>;
+  ): Promise<{ url: string; number: number }>;
+  /** Closes the pull request and deletes its branch: used when the payment does not settle */
+  withdrawPullRequest(owner: string, repo: string, number: number, branch: string): Promise<void>;
 }
 
 export interface MigrateJobDeps {
@@ -79,7 +81,7 @@ export function prBody(r: MigrationResult, jobId: string, lockfile: boolean): st
  * answers 5xx and the payment is never settled.
  */
 export function createMigrateJob({ token, github, branchPrefix = '402found/', migrate = migrateDirectory }: MigrateJobDeps): RunJob {
-  return async ({ repo }, { signal }) => {
+  return async ({ repo }, { signal, onUnpaid }) => {
     const jobId = `job_${randomUUID()}`;
     const branch = `${branchPrefix}ethers-v6-${jobId.slice(4, 12)}`;
     const dir = await mkdtemp(path.join(tmpdir(), '402found-'));
@@ -102,12 +104,15 @@ export function createMigrateJob({ token, github, branchPrefix = '402found/', mi
       await git('commit', '-m', 'Migrate ethers v5 to v6', '-m', `Opened by the 402 Found engine (${jobId}).`);
       await git('push', 'origin', branch);
 
-      const prUrl = await github.openPullRequest(repo.owner, repo.repo, {
+      const pr = await github.openPullRequest(repo.owner, repo.repo, {
         head: branch,
         base: repo.defaultBranch,
         title: 'Migrate ethers v5 to v6',
         body: prBody(result, jobId, lockfile),
       });
+      // If settlement fails after this point, the pull request is withdrawn: no free work.
+      onUnpaid(() => github.withdrawPullRequest(repo.owner, repo.repo, pr.number, branch));
+      const prUrl = pr.url;
 
       return {
         status: 'pr_opened',

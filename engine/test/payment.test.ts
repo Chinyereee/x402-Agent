@@ -109,6 +109,61 @@ describe('POST /api/v1/migrate – the x402 handshake', () => {
     expect(facilitator.settled).toHaveLength(0);
   });
 
+  it('answers a retry with the same payment with the same job and pull request (step D)', async () => {
+    let runs = 0;
+    const a = app(async (...args) => {
+      runs++;
+      return { ...(await okJob(...args)), jobId: `job_${runs}` };
+    });
+    const unpaid = await request(a).post('/api/v1/migrate').send(REPO);
+    const signature = paymentFor(unpaid.headers['payment-required']);
+    const first = await request(a).post('/api/v1/migrate').set('PAYMENT-SIGNATURE', signature).send(REPO);
+    const retry = await request(a).post('/api/v1/migrate').set('PAYMENT-SIGNATURE', signature).send(REPO);
+    expect(first.status).toBe(200);
+    expect(retry.status).toBe(200);
+    expect(retry.body).toEqual(first.body);
+    expect(retry.headers['payment-response']).toBe(first.headers['payment-response']);
+    expect(runs).toBe(1);
+    expect(facilitator.settled).toHaveLength(1);
+  });
+
+  it('withdraws the delivered work when settlement fails, so it is never free', async () => {
+    facilitator.settleResult = false;
+    let withdrawn = 0;
+    const a = app(async (input, ctx) => {
+      ctx.onUnpaid(async () => {
+        withdrawn++;
+      });
+      return okJob(input, ctx);
+    });
+    const unpaid = await request(a).post('/api/v1/migrate').send(REPO);
+    const res = await request(a)
+      .post('/api/v1/migrate')
+      .set('PAYMENT-SIGNATURE', paymentFor(unpaid.headers['payment-required']))
+      .send(REPO);
+    expect(res.status).not.toBe(200);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(withdrawn).toBe(1);
+  });
+
+  it('keeps delivered work when the payment settles', async () => {
+    let withdrawn = 0;
+    const a = app(async (input, ctx) => {
+      ctx.onUnpaid(async () => {
+        withdrawn++;
+      });
+      return okJob(input, ctx);
+    });
+    const unpaid = await request(a).post('/api/v1/migrate').send(REPO);
+    const res = await request(a)
+      .post('/api/v1/migrate')
+      .set('PAYMENT-SIGNATURE', paymentFor(unpaid.headers['payment-required']))
+      .send(REPO);
+    expect(res.status).toBe(200);
+    await new Promise((r) => setTimeout(r, 10));
+    expect(withdrawn).toBe(0);
+  });
+
   it('keeps the job timeout well inside the signature lifetime', () => {
     // README: maxTimeoutSeconds 900, job timeout 10 minutes, at least 5 minutes left to settle.
     const c = loadConfig({ PAY_TO });

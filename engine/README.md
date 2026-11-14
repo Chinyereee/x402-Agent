@@ -19,9 +19,22 @@ Built on the official packages: `@x402/express` (middleware), `@x402/stellar` (e
 | A | Paid endpoint, settle-on-success, job timeout, test payer | done |
 | B | Free preflight (repo, push access, ethers v5, size) | done |
 | C | Real job: clone, codemod, `package.json` + lockfile, pull request | done |
-| D | Idempotent retries (same payment → same job and PR) | |
+| D | Idempotent retries (same payment → same job and PR) | done |
 
 `JOB=migrate` runs step C: it clones the default branch, runs `/codemod`, regenerates `package-lock.json` if there is one (`--ignore-scripts`), pushes a `402found/ethers-v6-<id>` branch and opens the pull request. The description lists the changed files, the codemod's TODOs and failures, and the `package.json` warnings, so the maintainer knows what to check. Any failure answers 5xx and the payment is not settled. `JOB=hello` still takes the payment and opens no pull request.
+
+### Order of a paid job
+
+1. The paywall verifies the payment with the facilitator before the job starts. An invalid payment never runs a job.
+2. The job opens the pull request.
+3. The paywall settles. If settlement fails, the engine closes the pull request and deletes its branch, so a failed payment never leaves free work behind.
+
+A retry with the same `PAYMENT-SIGNATURE` gets the same `jobId`, pull request and `PAYMENT-RESPONSE`; a retry while the job is still running waits for it. This is kept in memory, so it lasts until the engine restarts.
+
+### Known limits
+
+- Only the root `package.json` is updated. In a monorepo, nested packages keep ethers v5 and need a manual bump.
+- The pull request description lists the codemod's TODOs whenever there are any, along with failures and `package.json` warnings.
 
 ## Run the tests
 
