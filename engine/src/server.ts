@@ -5,6 +5,7 @@ import { createApp, type RunJob } from './app.js';
 import { loadConfig } from './config.js';
 import { GitHubRest } from './github.js';
 import { helloJob } from './jobs/hello.js';
+import { createMigrateJob } from './jobs/migrate.js';
 
 const config = loadConfig();
 const facilitator = new HTTPFacilitatorClient({ url: config.facilitatorUrl });
@@ -13,7 +14,10 @@ const githubToken = process.env.GITHUB_TOKEN;
 if (!githubToken) throw new Error('GITHUB_TOKEN is required: the free preflight reads the repo before asking for payment');
 const github = new GitHubRest(githubToken);
 
-const jobs: Record<string, RunJob> = { hello: helloJob };
+const jobs: Record<string, RunJob> = {
+  hello: helloJob,
+  migrate: createMigrateJob({ token: githubToken, github, branchPrefix: process.env.DEMO_BRANCH_PREFIX }),
+};
 const jobName = process.env.JOB ?? 'hello';
 const runJob = jobs[jobName];
 if (!runJob) throw new Error(`Unknown JOB "${jobName}" (available: ${Object.keys(jobs).join(', ')})`);

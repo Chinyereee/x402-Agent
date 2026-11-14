@@ -18,10 +18,10 @@ Built on the official packages: `@x402/express` (middleware), `@x402/stellar` (e
 |---|---|---|
 | A | Paid endpoint, settle-on-success, job timeout, test payer | done |
 | B | Free preflight (repo, push access, ethers v5, size) | done |
-| C | Real job: clone, codemod, `package.json` + lockfile, pull request | next |
+| C | Real job: clone, codemod, `package.json` + lockfile, pull request | done |
 | D | Idempotent retries (same payment → same job and PR) | |
 
-Until step C, the only job is `hello`: it takes the payment and opens no pull request.
+`JOB=migrate` runs step C: it clones the default branch, runs `/codemod`, regenerates `package-lock.json` if there is one (`--ignore-scripts`), pushes a `402found/ethers-v6-<id>` branch and opens the pull request. The description lists the changed files, the codemod's TODOs and failures, and the `package.json` warnings, so the maintainer knows what to check. Any failure answers 5xx and the payment is not settled. `JOB=hello` still takes the payment and opens no pull request.
 
 ## Run the tests
 

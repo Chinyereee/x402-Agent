@@ -1,3 +1,4 @@
+import type { PullRequestApi } from './jobs/migrate.js';
 import type { GitHubApi, RepoInfo } from './preflight.js';
 
 /**
@@ -5,14 +6,15 @@ import type { GitHubApi, RepoInfo } from './preflight.js';
  * canPush comes from the token's permissions on the repo; when the 402 Found
  * GitHub App replaces the token, the same check becomes "App installed here".
  */
-export class GitHubRest implements GitHubApi {
+export class GitHubRest implements GitHubApi, PullRequestApi {
   constructor(
     private readonly token: string,
     private readonly baseUrl = 'https://api.github.com'
   ) {}
 
-  private async get(path: string): Promise<Response> {
+  private async get(path: string, init: { method?: string; body?: string } = {}): Promise<Response> {
     return fetch(`${this.baseUrl}${path}`, {
+      ...init,
       headers: {
         Accept: 'application/vnd.github+json',
         Authorization: `Bearer ${this.token}`,
@@ -58,5 +60,18 @@ export class GitHubRest implements GitHubApi {
     if (!res.ok) throw new Error(`GitHub ${res.status} reading ${path}`);
     const f = (await res.json()) as { content?: string; encoding?: string };
     return f.encoding === 'base64' && f.content ? Buffer.from(f.content, 'base64').toString('utf8') : null;
+  }
+
+  async openPullRequest(
+    owner: string,
+    repo: string,
+    pr: { head: string; base: string; title: string; body: string }
+  ): Promise<string> {
+    const res = await this.get(`/repos/${GitHubRest.enc(owner)}/${GitHubRest.enc(repo)}/pulls`, {
+      method: 'POST',
+      body: JSON.stringify(pr),
+    });
+    if (!res.ok) throw new Error(`GitHub ${res.status} opening a pull request on ${owner}/${repo}`);
+    return ((await res.json()) as { html_url: string }).html_url;
   }
 }
