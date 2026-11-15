@@ -13,6 +13,26 @@ The codemod the engine runs lives in [`/codemod`](codemod), with its full git hi
 
 This README is the shared contract between the two modules. 
 
+## Run it
+
+### Wallet (`/wallet`)
+
+Needs Node 20+ and a funded Stellar testnet key for the agent.
+
+```bash
+cd wallet
+npm install
+npm test       # rules engine tests, no network
+npm run dev    # http://localhost:3040
+```
+
+1. Create `wallet/.env.local` (git-ignored, never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_USDC_CONTRACT`, `WALLET_EXPLORER_URL`, and the seller: `SERVICE_BASE_URL` (the engine, e.g. `http://localhost:4041`), `SERVICE_NAME`, `SERVICE_PAYTO` (the engine's pay-to address).
+2. Optional on-chain limits: `node scripts/setup-owner.mjs 0.10` creates the owner wallet and leaves the agent a 0.10 USDC float.
+3. Open `/hifi/rules`, write the rules in plain words and confirm them.
+4. Open `/hifi/live` and run a job. The wallet checks the rules, pays the 402, and keeps a receipt with the pull request and transaction links (`/hifi`).
+
+More in [`wallet/README.md`](wallet/README.md).
+
 ## Payment requirements (x402 v2)
 
 The engine answers an unpaid `POST /api/v1/migrate` with `402` and a `PAYMENT-REQUIRED` header. Decoded:
