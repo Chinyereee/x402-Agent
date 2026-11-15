@@ -14,7 +14,8 @@ checked commit by commit.
 
 ## What we added during the hackathon (from `601893a`, 11 to 14 Nov 2026)
 
-Each fix comes with tests, written to fail before the fix. Most were found by running the
+Each fix to a transform comes with tests, except the three changes from 14 Nov, which are checked by running the codemod on real repos. The packaging fix is checked by `npm run build`.
+Most were found by running the
 codemod on a real ethers v5 codebase and type-checking the result against ethers 6.
 
 | Change | Found on | Commit |
