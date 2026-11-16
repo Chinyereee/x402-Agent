@@ -82,7 +82,7 @@ Success body:
   "status": "pr_opened",
   "jobId": "job_...",
   "prUrl": "https://github.com/<owner>/<repo>/pull/12",
-  "transforms": ["rename-utils", "rename-providers", "bigNumber-to-bigint", "await-getsigner", "package-json"],
+  "transforms": ["rename-utils", "rename-providers", "bigNumber-to-bigint", "await-getSigner", "package-json"],
   "needsHuman": [{ "file": "src/Wallet.ts", "line": 14, "reason": "getSigner() in a constructor" }]
 }
 ```
