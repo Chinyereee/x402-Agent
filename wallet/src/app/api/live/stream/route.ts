@@ -2,6 +2,8 @@
 import { answer, buy, type LiveEvent, type Seller } from "@/lib/live.ts";
 
 export const dynamic = "force-dynamic";
+// A paid codemod job takes 10–20 s; the engine may also need to wake up.
+export const maxDuration = 120;
 
 export async function GET(req: Request) {
   const q = new URL(req.url).searchParams;

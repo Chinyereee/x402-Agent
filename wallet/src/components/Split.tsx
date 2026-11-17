@@ -127,11 +127,16 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
     };
   }
 
-  function run() {
+  async function run() {
     setSteps([]);
     setLog([]);
     setReceipt(null);
     setAskId(null);
+    const gate = await fetch("/api/unlock").then((r) => r.json()).catch(() => ({ locked: false }));
+    if (gate.locked) {
+      step({ key: "done", title: "Locked on the public demo", detail: "Enter the demo code in the workspace Settings, then run it again. Everything is test money.", tone: "ask" });
+      return;
+    }
     stream(`path=${encodeURIComponent("/api/v1/migrate")}&seller=engine`);
   }
   function answer(allow: boolean) {

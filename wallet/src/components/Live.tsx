@@ -19,6 +19,7 @@ const ITEMS: { path: string; what: string; price: string; seller?: string }[] = 
 
 type State = {
   receipts: LiveReceipt[];
+  sellers?: { main: boolean; engine: boolean };
   ledger: { paidThisMonth: number; pending: number };
   rules: { monthlyBudget: number; capPerPayment: number; allow: string[]; text: string };
 };
@@ -103,7 +104,7 @@ export function Live() {
 
         <h2>Things the agent can buy</h2>
         <div className="lv-items">
-          {ITEMS.map((it) => (
+          {ITEMS.filter((it) => !state.sellers || state.sellers[(it.seller ?? "main") as "main" | "engine"]).map((it) => (
             <button key={it.path} className="lv-item" disabled={!!busy} onClick={() => post({ action: "buy", path: it.path, seller: it.seller ?? "main" }, it.path)}>
               <span>{it.what}</span>
               <b>{busy === it.path ? "Paying…" : it.price}</b>

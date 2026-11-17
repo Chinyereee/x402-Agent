@@ -3,8 +3,7 @@
 // and keeps a receipt with the real Stellar transaction. Testnet only.
 // Every step can be reported as it happens (emit), so the UI prints only real events.
 import "server-only";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { readJSON, writeJSON } from "./kv.ts";
 import { wrapFetchWithPaymentFromConfig, decodePaymentResponseHeader } from "@x402/fetch";
 import { createEd25519Signer } from "@x402/stellar";
 import { ExactStellarScheme } from "@x402/stellar/exact/client";
@@ -27,7 +26,14 @@ export async function rules(): Promise<Rules> {
 
 // Sellers the agent can call. "other" is a second seller that is not on the owner's list.
 export type Seller = "main" | "other" | "engine";
-const sellerBase = (s: Seller) => env(s === "main" ? "SERVICE_BASE_URL" : s === "engine" ? "ENGINE_BASE_URL" : "OTHER_SERVICE_BASE_URL");
+const BASE_KEY: Record<Seller, string> = { main: "SERVICE_BASE_URL", engine: "ENGINE_BASE_URL", other: "OTHER_SERVICE_BASE_URL" };
+const sellerBase = (s: Seller) => {
+  const v = process.env[BASE_KEY[s]];
+  if (!v) throw new Error("This shop is not online in this copy of the demo. Nothing was asked or paid.");
+  return v;
+};
+// Which sellers this deployment can reach (the workshop kit runs only on a laptop).
+export const sellersOnline = () => ({ main: !!process.env.SERVICE_BASE_URL, engine: !!process.env.ENGINE_BASE_URL });
 
 // The engine sells a job: POST the repository to upgrade. The workshop kit sells data: GET.
 function requestInit(s: Seller): RequestInit | undefined {
@@ -67,18 +73,16 @@ export type LiveEvent =
 type Emit = (e: LiveEvent) => void;
 const quiet: Emit = () => {};
 
-const STORE = path.join(process.cwd(), "data", "receipts.json");
 
 export async function readReceipts(): Promise<LiveReceipt[]> {
-  try { return JSON.parse(await fs.readFile(STORE, "utf8")); } catch { return []; }
+  return (await readJSON<LiveReceipt[]>("receipts")) ?? [];
 }
 
 async function save(r: LiveReceipt) {
   const all = await readReceipts();
   const i = all.findIndex((x) => x.id === r.id);
   if (i >= 0) all[i] = r; else all.unshift(r);
-  await fs.mkdir(path.dirname(STORE), { recursive: true });
-  await fs.writeFile(STORE, JSON.stringify(all, null, 2));
+  await writeJSON("receipts", all);
 }
 
 // Paid this month and still pending, from the receipts themselves.

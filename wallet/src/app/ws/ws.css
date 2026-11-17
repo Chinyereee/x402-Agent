@@ -150,6 +150,9 @@
 .ws-set code { font: 13px var(--mono); }
 .ws-set-now { color: var(--ink) !important; font-weight: 500; }
 .ws-fine { color: var(--sub) !important; font-size: 13px; }
+.ws-unlock { display: flex; gap: 8px; }
+.ws-unlock input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font: inherit; font-size: 15px; }
+.ws-unlock input:focus { outline: 0; border-color: var(--primary); }
 
 
 /* mobile title bar (hidden on wide screens) and "Ask about this" on function pages */

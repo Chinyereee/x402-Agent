@@ -1,4 +1,5 @@
 import { aiStatus } from "@/lib/ws-ask.ts";
+import { Unlock } from "@/components/Unlock.tsx";
 
 export const dynamic = "force-dynamic";
 
@@ -9,6 +10,7 @@ export default function Settings() {
     <div className="ws-page">
       <p className="ws-eyebrow">Settings</p>
       <h1 className="ws-page-h">How the workspace works for you</h1>
+      <Unlock />
       <section className="ws-set">
         <h2>Assistant</h2>
         <p className="ws-set-now">

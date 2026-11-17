@@ -11,7 +11,7 @@ import { Icon, I } from "./icons.tsx";
  * changes rules first comes back as a card the owner confirms.
  */
 type AiStatus = { configured: boolean; model: string | null; host: string | null };
-type Live = { ledger: { paidThisMonth: number; pending: number }; rules: { monthlyBudget: number; capPerPayment: number; allow: string[]; text: string }; receipts: { id: string; status: string; at: string; amount: number; service: string; description: string }[] };
+type Live = { sellers?: { main: boolean; engine: boolean }; ledger: { paidThisMonth: number; pending: number }; rules: { monthlyBudget: number; capPerPayment: number; allow: string[]; text: string }; receipts: { id: string; status: string; at: string; amount: number; service: string; description: string }[] };
 type Receipt = { id: string; status: string; description: string; amount: number; note?: string };
 
 const START = [
@@ -250,7 +250,7 @@ export default function Assistant() {
               <p className="ws-sec">Start here</p>
               <div className="ws-start">
                 {START.map((x) => (
-                  <button key={x.t} type="button" className="ws-card" onClick={() => say(x.p)}>
+                  <button key={x.t} type="button" className="ws-card" onClick={() => say(x.t === "Buy something" && live?.sellers?.main === false ? "Upgrade my code with the codemod engine." : x.p)}>
                     <b>{x.t}</b>
                     <span>{x.d}</span>
                   </button>
