@@ -11,7 +11,7 @@ import { Icon, I } from "./icons.tsx";
  * changes rules first comes back as a card the owner confirms.
  */
 type AiStatus = { configured: boolean; model: string | null; host: string | null };
-type Live = { ledger: { paidThisMonth: number; pending: number }; rules: { monthlyBudget: number; capPerPayment: number; allow: string[]; text: string }; receipts: { id: string; status: string }[] };
+type Live = { ledger: { paidThisMonth: number; pending: number }; rules: { monthlyBudget: number; capPerPayment: number; allow: string[]; text: string }; receipts: { id: string; status: string; at: string; amount: number; service: string; description: string }[] };
 type Receipt = { id: string; status: string; description: string; amount: number; note?: string };
 
 const START = [
@@ -25,6 +25,8 @@ const TAB = {
   home: { id: "home", title: "Overview", src: "/hifi" },
   rules: { id: "rules", title: "Rules", src: "/hifi/rules" },
   pay: { id: "pay", title: "Things to buy", src: "/hifi/live" },
+  job: { id: "job", title: "Codemod job", src: "/hifi/split" },
+  guide: { id: "guide", title: "How it works", src: "/ws/guide?embed=1" },
   receipt: (id: string, what: string): Tab => ({ id: `r:${id}`, title: `Receipt · ${what}`, src: `/hifi/receipts/${id}` }),
 };
 
@@ -39,6 +41,8 @@ function ruleReply(q: string, live: Live | null): { text: string; then?: Item; o
   const t = q.toLowerCase();
   const item = CATALOG.find((i) => t.includes(i.what.toLowerCase().split(" ")[0]) || t.includes(i.what.toLowerCase()));
   if (item && /(buy|get|pay|买|要)/.test(t)) return { text: `Here is what that would cost. Your rules check it before anything is paid.`, then: { k: "buy", path: item.path } };
+  if (/(codemod|upgrade|engine|pull request|升级|代码)/.test(t)) return { text: "Here is one codemod job from both sides: your wallet on the left, the engine on the right. Press the blue button to run it with test money.", open: TAB.job };
+  if (/(how does|how it works|what is this|explain|怎么用|是什么|新手)/.test(t)) return { text: "In short: your AI helper gets pocket money, you write the house rules, every shop shows a price tag that your rules check, and you get a receipt for everything. The guide beside us has the four steps.", open: TAB.guide };
   if (/(rule|budget|cap|limit|规则|上限|预算)/.test(t)) return { text: "Write the new rules in your own words below. Nothing changes until you save them.", then: { k: "rules", text: live?.rules.text ?? "" } };
   if (/(left|remain|how much|剩)/.test(t) && live) {
     const left = live.rules.monthlyBudget - live.ledger.paidThisMonth - live.ledger.pending;
@@ -59,6 +63,9 @@ export default function Assistant() {
   const [focus, setFocus] = useState(false);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  // On a phone the app area is a drawer that opens only when she taps; on a laptop it opens beside the talk.
+  const [drawer, setDrawer] = useState(false);
+  const [welcome, setWelcome] = useState(false);
   // A conversation this page just started keeps the tabs it is opening; switching to another clears them.
   const started = useRef<string | null>(null);
 
@@ -66,9 +73,21 @@ export default function Assistant() {
   useEffect(() => {
     fetch("/api/ws/ask").then((r) => r.json()).then(setAi).catch(() => setAi(null));
     refresh();
-    const c = new URLSearchParams(location.search).get("c");
-    if (c) setCurrent(c);
+    const q = new URLSearchParams(location.search);
+    if (q.get("c")) setCurrent(q.get("c"));
+    try {
+      setWelcome(localStorage.getItem("ws-welcome") !== "1");
+    } catch {}
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  // "Ask about this" from a function page: start a new conversation with that question.
+  const asked = useRef(false);
+  useEffect(() => {
+    const q = new URLSearchParams(location.search).get("ask");
+    if (!q || asked.current || ai === null) return;
+    asked.current = true;
+    history.replaceState(null, "", "/ws");
+    say(q);
+  }, [ai]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (current && current === started.current) return;
     setTabs([]);
@@ -82,10 +101,17 @@ export default function Assistant() {
   const add = (id: string, ...more: Item[]) => patch(id, (t) => ({ ...t, at: Date.now(), items: [...t.items, ...more] }));
   const setItem = (id: string, i: number, next: Item) => patch(id, (t) => ({ ...t, items: t.items.map((x, j) => (j === i ? next : x)) }));
 
-  function openTab(t: Tab) {
+  function openTab(t: Tab, tapped = false) {
     setTabs((all) => (all.some((x) => x.id === t.id) ? all.map((x) => (x.id === t.id ? t : x)) : [...all, t]));
     setTab(t.id);
+    if (tapped) setDrawer(true);
   }
+  const dismissWelcome = () => {
+    setWelcome(false);
+    try {
+      localStorage.setItem("ws-welcome", "1");
+    } catch {}
+  };
   function closeTab(id: string) {
     setTabs((all) => {
       const left = all.filter((x) => x.id !== id);
@@ -112,7 +138,10 @@ export default function Assistant() {
     if (!ai?.configured) {
       const r = ruleReply(q, live);
       add(tid, { k: "ai", text: r.text, via: "rules" }, ...(r.then ? [r.then] : []));
-      if (r.open) openTab(r.open);
+      if (r.open) {
+        openTab(r.open);
+        add(tid, { k: "tool", tone: "ok", label: `Opened ${r.open.title} beside the conversation.`, tab: r.open });
+      }
       return;
     }
     setBusy(true);
@@ -126,8 +155,11 @@ export default function Assistant() {
       const a = body.action;
       const then: Item | null = a?.type === "buy" && byPath(a.path) ? { k: "buy", path: a.path } : a?.type === "rules" && a.text ? { k: "rules", text: String(a.text) } : null;
       add(tid, { k: "ai", text: body.reply || "…", via: "ai" }, ...(then ? [then] : []));
-      if (a?.type === "open" && a.what in TAB) openTab(TAB[a.what as "home" | "rules" | "pay"]);
-      if (a?.type === "receipt" && a.id) openTab(TAB.receipt(String(a.id), "details"));
+      const shown = a?.type === "open" && a.what in TAB ? TAB[a.what as "home" | "rules" | "pay" | "job" | "guide"] : a?.type === "receipt" && a.id ? TAB.receipt(String(a.id), "details") : null;
+      if (shown) {
+        openTab(shown);
+        add(tid, { k: "tool", tone: "ok", label: `Opened ${shown.title} beside the conversation.`, tab: shown });
+      }
     } catch (e) {
       add(tid, { k: "error", text: `The assistant did not answer: ${e instanceof Error ? e.message : "error"}` });
     } finally {
@@ -176,9 +208,11 @@ export default function Assistant() {
   const hello = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
   const left = live ? live.rules.monthlyBudget - live.ledger.paidThisMonth - live.ledger.pending : null;
   const active = tabs.find((t) => t.id === tab) ?? tabs[tabs.length - 1];
+  const asking = live?.receipts.filter((r) => r.status === "needs_you") ?? [];
+  const recent = live?.receipts.filter((r) => r.status !== "needs_you").slice(0, 3) ?? [];
 
   return (
-    <section className={`ws-talk${tabs.length ? " ws-talk-app" : ""}${focus ? " ws-talk-focus" : ""}`} aria-label="Conversation">
+    <section className={`ws-talk${tabs.length ? " ws-talk-app" : ""}${focus ? " ws-talk-focus" : ""}${drawer ? " ws-drawer-open" : ""}`} aria-label="Conversation">
       <div className="ws-controls" role="group" aria-label="Display">
         {tabs.length > 0 && (
           <>
@@ -197,6 +231,16 @@ export default function Assistant() {
           <div className="ws-hero-wrap">
             <div className="ws-scene" aria-hidden="true" />
             <div className="ws-hero">
+              {welcome && (
+                <div className="ws-welcome">
+                  <span className="ws-welcome-i" aria-hidden="true"><Icon d={I.guide} size={18} /></span>
+                  <p>
+                    <b>New here?</b> Think of it as pocket money for your AI helper: you set the house rules, it shows you a receipt for every cent. Test money only.
+                  </p>
+                  <a href="/ws/guide">See how, 1 minute</a>
+                  <button type="button" aria-label="Hide this" onClick={dismissWelcome}><Icon d={I.close} size={14} /></button>
+                </div>
+              )}
               <p className="ws-eyebrow">Receipts · Assistant</p>
               <h1>{hello}, Lina</h1>
               <p className="ws-lede">
@@ -212,6 +256,42 @@ export default function Assistant() {
                   </button>
                 ))}
               </div>
+              {live && (
+                <>
+                  <p className="ws-sec">On your desk</p>
+                  <div className="ws-desk">
+                    {asking.length > 0 && (
+                      <a className="ws-desk-card ask" href="/ws/pay">
+                        <small>Waiting for you</small>
+                        <b>{asking.length === 1 ? "1 payment needs your yes or no" : `${asking.length} payments need your yes or no`}</b>
+                        <span>Your agent stopped because the price was over your limit.</span>
+                      </a>
+                    )}
+                    <div className="ws-desk-card">
+                      <small>Last receipts</small>
+                      {recent.length ? (
+                        <ul>
+                          {recent.map((r) => (
+                            <li key={r.id}>
+                              <button type="button" onClick={() => openTab(TAB.receipt(r.id, r.service), true)}>
+                                <span>{r.service}</span>
+                                <span className={`ws-desk-st ${r.status}`}>{r.status === "paid" ? usd(r.amount) : r.status === "blocked" ? "stopped" : r.status}</span>
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span>No receipts yet.</span>
+                      )}
+                    </div>
+                    <button type="button" className="ws-desk-card try" onClick={() => openTab(TAB.job, true)}>
+                      <small>Try it</small>
+                      <b>Watch one purchase, both sides</b>
+                      <span>Your agent pays 5 test cents and a code upgrade arrives as a pull request.</span>
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         ) : (
@@ -237,7 +317,10 @@ export default function Assistant() {
                 </span>
               ))}
             </div>
-            <a className="ws-open-full" href={active.src} target="_blank" rel="noreferrer">New window ↗</a>
+            <a className="ws-open-full" href={active.src.replace("?embed=1", "")} target="_blank" rel="noreferrer">New window ↗</a>
+            <button type="button" className="ws-drawer-x" aria-label="Close" onClick={() => setDrawer(false)}>
+              <Icon d={I.close} size={15} />
+            </button>
           </div>
           <iframe key={active.src} className="ws-frame" src={active.src} title={active.title} />
         </aside>
@@ -249,7 +332,7 @@ export default function Assistant() {
 function Thread({ items, busy, openTab, buy, decide, saveRules }: {
   items: Item[];
   busy: boolean;
-  openTab: (t: Tab) => void;
+  openTab: (t: Tab, tapped?: boolean) => void;
   buy: (i: number, path: string) => void;
   decide: (i: number, it: Extract<Item, { k: "decide" }>, allow: boolean) => void;
   saveRules: (i: number, text: string) => void;
@@ -309,7 +392,7 @@ function Thread({ items, busy, openTab, buy, decide, saveRules }: {
             <div key={i} className="ws-tool">
               <i className={`ws-tool-dot ${x.tone}`} />
               <span>{x.label}</span>
-              {x.tab && <button type="button" onClick={() => openTab(x.tab!)}>Open →</button>}
+              {x.tab && <button type="button" onClick={() => openTab(x.tab!, true)}>Open →</button>}
             </div>
           );
         return <div key={i} className="ws-error">{x.text}</div>;

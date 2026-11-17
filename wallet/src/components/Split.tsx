@@ -53,7 +53,7 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
         break;
       case "quote":
         price.current = usdc(e.amount);
-        step({ key: "price", title: `Price: $${price.current}`, detail: "The engine asked for payment only after its preflight passed", tone: "work" });
+        step({ key: "price", title: `Price: $${price.current}`, detail: "The price tag came only after the engine checked it can do the job", tone: "work" });
         say("ok", "preflight passed");
         say("out", `402 Payment Required · ${price.current} USDC to ${short(e.payTo)}`);
         break;
@@ -67,10 +67,10 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
         if (e.outcome === "pay") say("note", "waiting for a signed payment");
         break;
       case "topup":
-        step({ key: "topup", title: "Topped up from your on-chain allowance", detail: `+${usdc(e.amount)} USDC, Stellar enforces the limit`, tone: "ok" });
+        step({ key: "topup", title: "Refilled the agent's pocket money", detail: `+${usdc(e.amount)} USDC from your allowance; Stellar holds the limit`, tone: "ok" });
         break;
       case "signed":
-        step({ key: "signed", title: `Signed for exactly ${price.current} USDC`, detail: "A Soroban auth entry for one USDC transfer. Held, not settled: the engine only settles once the work is done", tone: "work" });
+        step({ key: "signed", title: `Signed for exactly ${price.current} USDC`, detail: "Like a signed cheque the shop may cash only once the work is done. No money has moved yet", tone: "work" });
         say("in", "PAYMENT-SIGNATURE received: a Soroban auth entry for a USDC transfer");
         say("note", "verify with the facilitator: authorization checked, no funds move yet");
         say("note", "running the codemod");
@@ -78,7 +78,10 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
       case "settled": {
         const pr = prUrl(e.receipt.data);
         setReceipt(e.receipt);
-        step({ key: "done", title: `Paid $${price.current}`, detail: "Settled on Stellar after the engine delivered", tone: "ok" });
+        step({ key: "done", title: `Paid $${price.current}`, detail: "The engine delivered, then cashed it on Stellar", tone: "ok" });
+        const done = e.receipt.data as { transforms?: string[]; needsHuman?: unknown[] } | undefined;
+        if (done?.transforms?.length) say("ok", `codemod applied: ${done.transforms.join(", ")}`);
+        if (done?.needsHuman?.length) say("note", `${done.needsHuman.length} spot(s) left for a person, listed in the PR`);
         if (pr) say("ok", `pull request opened: ${prLabel(pr)}`, pr);
         else say("ok", "job done");
         if (e.receipt.tx) say("ok", `settled on Stellar · tx ${short(e.receipt.tx)}`, e.receipt.link);

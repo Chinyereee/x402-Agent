@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { LiveReceipt } from "@/lib/live.ts";
+import { prLabel, prUrl } from "@/lib/pr.ts";
 
 const UNITS = 10_000_000;
 const usd = (units: number) => `$${(units / UNITS).toFixed(units < 0.01 * UNITS && units > 0 ? 3 : 2)}`;
@@ -80,11 +81,11 @@ export function Live() {
 
         {allow?.enabled && (
           <div className="lv-onchain">
-            <div className="lv-onchain-head"><b>On-chain allowance</b><span className="muted small">enforced by Stellar</span></div>
-            <div className="lv-onchain-row"><span>Left for the agent</span><b>{usdc(allow.allowance ?? 0)}</b></div>
+            <div className="lv-onchain-head"><b>Pocket money on Stellar</b><span className="muted small">the network itself holds the limit</span></div>
+            <div className="lv-onchain-row"><span>Left to spend this month</span><b>{usdc(allow.allowance ?? 0)}</b></div>
             <div className="lv-onchain-row"><span>Expires</span><b>{allow.untilISO ? new Date(allow.untilISO).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : "—"}</b></div>
-            <div className="lv-onchain-row"><span>Agent&apos;s float</span><b>{usdc(allow.agentFloat ?? 0)}</b></div>
-            <p className="muted small">The agent keeps a small float and tops it up from Lina&apos;s wallet. Over the allowance or after it expires, Stellar refuses the top-up.</p>
+            <div className="lv-onchain-row"><span>Cash in the agent&apos;s pocket</span><b>{usdc(allow.agentFloat ?? 0)}</b></div>
+            <p className="muted small">Like a prepaid card: the agent carries a little cash and refills it from Lina&apos;s wallet. Past the limit or the end date, Stellar refuses the refill, even if the app had a bug.</p>
             <div className="lv-ask">
               <button className="btn primary" disabled={!!busy} onClick={() => setAllowance("grant")}>{busy === "grant" ? "Signing…" : `Grant ${usd(available)} to month end`}</button>
               <button className="btn ghost" disabled={!!busy} onClick={() => setAllowance("revoke")}>{busy === "revoke" ? "Signing…" : "Revoke"}</button>
@@ -100,7 +101,7 @@ export function Live() {
           </div>
         )}
 
-        <h2>Ask the agent to buy</h2>
+        <h2>Things the agent can buy</h2>
         <div className="lv-items">
           {ITEMS.map((it) => (
             <button key={it.path} className="lv-item" disabled={!!busy} onClick={() => post({ action: "buy", path: it.path, seller: it.seller ?? "main" }, it.path)}>
@@ -110,7 +111,7 @@ export function Live() {
           ))}
         </div>
         {error && <p className="lv-error">{error}</p>}
-        <p className="muted small">Real x402 payments on Stellar testnet, settled through the Coinbase facilitator. The seller for now is the workshop kit&apos;s paid API.</p>
+        <p className="muted small">Real x402 payments on Stellar testnet, settled through the Coinbase facilitator. Sellers: the workshop kit&apos;s paid API (data) and the 402 Found codemod engine (pull requests).</p>
       </aside>
 
       <section className="lv-receipts">
@@ -127,6 +128,9 @@ export function Live() {
             <div className="rc-line rc-rule" />
             <div className="rc-line"><span>RULES</span><span>{r.checks.map((c) => `${c.rule.split(" ")[0].toLowerCase()} ${c.ok ? "✓" : "✕"}`).join(" ")}</span></div>
             {r.note && <div className="rc-line lv-note"><span>{r.note}</span></div>}
+            {prUrl(r.data) && (
+              <a className="rc-line lv-tx" href={prUrl(r.data)} target="_blank" rel="noreferrer"><span>PR {prLabel(prUrl(r.data)!)}</span><span>open ↗</span></a>
+            )}
             {r.status === "paid" && r.tx && (
               <>
                 <div className="rc-line rc-rule" />
