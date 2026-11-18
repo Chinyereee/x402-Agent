@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { LiveReceipt } from "@/lib/live.ts";
 import { prLabel, prUrl } from "@/lib/pr.ts";
+import { BuiltOnStellar } from "@/components/BuiltOnStellar.tsx";
 
 const UNITS = 10_000_000;
 const usd = (units: number) => `$${(units / UNITS).toFixed(units < 0.01 * UNITS && units > 0 ? 3 : 2)}`;
@@ -113,6 +114,7 @@ export function Live() {
         </div>
         {error && <p className="lv-error">{error}</p>}
         <p className="muted small">Real x402 payments on Stellar testnet, settled through the Coinbase facilitator. Sellers: the workshop kit&apos;s paid API (data) and the 402 Found codemod engine (pull requests).</p>
+        <BuiltOnStellar />
       </aside>
 
       <section className="lv-receipts">

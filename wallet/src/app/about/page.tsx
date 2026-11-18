@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fragment } from "react";
 import { GoldDust } from "@/components/GoldDust.tsx";
 import { ThemeToggle } from "@/components/ThemeToggle.tsx";
+import { BuiltOnStellar, STELLAR_NOTICE } from "@/components/BuiltOnStellar.tsx";
 import "./site.css";
 
 // The product site: what Receipts is, how a payment works, the proof on Stellar, and the design story.
@@ -124,6 +125,7 @@ export default function Site() {
 
       <section className="os-sec" id="proof">
         <p className="os-eyebrow">Proof on Stellar testnet</p>
+        <BuiltOnStellar className="os-proof-badge" />
         <h2>Every payment has a public receipt</h2>
         <table className="os-proof">
           <thead><tr><th>What</th><th>What happened</th><th>Transaction</th></tr></thead>
@@ -161,7 +163,9 @@ export default function Site() {
 
       <footer className="os-foot">
         <img src="/porcelain/street.webp" alt="" aria-hidden="true" />
+        <BuiltOnStellar />
         <p>Stellar testnet only: test money with no real value. Code at github.com/Chinyereee/x402-Agent.</p>
+        <p className="os-notice">{STELLAR_NOTICE}</p>
       </footer>
     </div>
   );

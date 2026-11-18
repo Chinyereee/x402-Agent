@@ -70,7 +70,9 @@
 .os-story figcaption { margin-top: 8px; color: var(--sub); font-size: 12.5px; }
 
 .os-foot { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 40px 16px 48px; color: var(--sub); font-size: 13px; text-align: center; }
-.os-foot img { width: min(520px, 90%); height: auto; filter: drop-shadow(0 16px 24px rgba(28, 40, 110, 0.12)); }
+.os-notice { max-width: 640px; margin: 0; font-size: 11.5px; opacity: 0.8; }
+.os-proof-badge { float: right; margin-top: -26px; }
+.os-foot > img { width: min(520px, 90%); height: auto; filter: drop-shadow(0 16px 24px rgba(28, 40, 110, 0.12)); }
 
 @media (max-width: 860px) {
   .os-top nav a:not(.os-cta) { display: none; }

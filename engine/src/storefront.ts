@@ -37,7 +37,13 @@ export function storefront(config: Pick<EngineConfig, 'price' | 'network'>, migr
   pre { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-align: left; font: 13px/1.6 ui-monospace, Menlo, monospace; overflow-x: auto; }
   .fine { margin-top: 22px; color: var(--sub); font-size: 13px; }
   a { color: var(--cobalt); }
+  .bos { display: flex; justify-content: center; align-items: center; gap: 7px; margin: 18px 0 0; color: var(--sub); font-size: 12px; }
+  .bos img { height: 15px; width: auto; }
+  .bos-dark { display: none; }
+  .notice { max-width: 520px; margin: 10px auto 0; color: var(--sub); font-size: 11.5px; opacity: 0.8; }
   @media (prefers-color-scheme: dark) {
+    .bos-light { display: none; }
+    .bos-dark { display: inline; }
     :root { --ink: #e8ecfb; --sub: #9aa3c4; --line: rgba(170, 185, 255, 0.13); --cobalt: #5b74f0; --gold: #d9b86c; }
     body { background: radial-gradient(45% 38% at 12% 8%, rgba(66, 86, 220, 0.32), transparent 70%), radial-gradient(38% 30% at 88% 6%, rgba(138, 92, 246, 0.22), transparent 70%), radial-gradient(50% 40% at 70% 92%, rgba(31, 182, 166, 0.14), transparent 70%), linear-gradient(180deg, #070b1f, #0b1236); }
     li, pre { background: rgba(16, 24, 58, 0.66); }
@@ -61,6 +67,8 @@ export function storefront(config: Pick<EngineConfig, 'price' | 'network'>, migr
   <pre>curl -i -X POST ${migratePath} -H 'content-type: application/json' -d '{"repoUrl":"https://github.com/owner/repo"}'
 # HTTP/1.1 402 Payment Required</pre>
   <p class="fine">${testnet ? 'Test network, test money only. ' : ''}Code: <a href="https://github.com/Chinyereee/x402-Agent">github.com/Chinyereee/x402-Agent</a></p>
+  <p class="bos">Built on <img class="bos-light" src="/assets/stellar-logo-black.png" alt="Stellar"><img class="bos-dark" src="/assets/stellar-logo-white.png" alt="Stellar"></p>
+  <p class="notice">“Stellar” is a trademark of the Stellar Development Foundation. All rights reserved. This is independent software, not affiliated with, sponsored or endorsed by the Stellar Development Foundation.</p>
 </main>
 </body>
 </html>`;

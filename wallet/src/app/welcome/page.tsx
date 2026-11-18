@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ThemeToggle } from "@/components/ThemeToggle.tsx";
+import { BuiltOnStellar } from "@/components/BuiltOnStellar.tsx";
 import "../ws/ws.css";
 import "./welcome.css";
 
@@ -43,6 +44,7 @@ export default function Welcome() {
         {msg && <p className="wl-msg">{msg}</p>}
         {locked && <Link className="wl-look" href="/ws">Just look around →</Link>}
         <p className="wl-fine">Test money only. Nothing here can cost you real money.</p>
+        <BuiltOnStellar className="wl-bos" />
       </div>
       <img className="wl-street" src="/porcelain/street.webp" alt="A row of porcelain houses, one joined to the next like blocks in a chain" />
     </div>

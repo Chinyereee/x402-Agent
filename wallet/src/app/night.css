@@ -74,7 +74,7 @@ html[data-theme="dark"] .ws-scene-img { mix-blend-mode: screen; filter: invert(1
 html[data-theme="dark"] .ws-scene-gold { opacity: 0.8; }
 
 /* porcelain glows a little in the dark */
-html[data-theme="dark"] :is(.ws-hero-star, .wl-star, .wl-street, .ws-step-art, .ws-sell-art, .ws-ask-art, .ws-intro-card img, .ws-mark-img, .os-hero-card, .os-hero-star, .os-steps img, .os-split > img, .os-foot img, .sp-col-head img) {
+html[data-theme="dark"] :is(.ws-hero-star, .wl-star, .wl-street, .ws-step-art, .ws-sell-art, .ws-ask-art, .ws-intro-card img, .ws-mark-img, .os-hero-card, .os-hero-star, .os-steps img, .os-split > img, .os-foot > img, .sp-col-head img) {
   filter: drop-shadow(0 0 22px rgba(120, 140, 255, 0.22)) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.45));
 }
 
@@ -82,6 +82,13 @@ html[data-theme="dark"] :is(.ws-hero-star, .wl-star, .wl-street, .ws-step-art, .
 html[data-theme="dark"] .sp-engine { background: rgba(10, 16, 44, 0.8); color: #c9d2f5; }
 html[data-theme="dark"] .sp-line.gold { color: #e8c983; background: linear-gradient(90deg, rgba(217, 184, 108, 0.2), transparent); }
 html[data-theme="dark"] .card, html[data-theme="dark"] .row, html[data-theme="dark"] .lv-onchain, html[data-theme="dark"] .lv-item { background: rgba(16, 24, 58, 0.66); border-color: rgba(170, 185, 255, 0.14); color: var(--ink); }
+
+/* Built on Stellar: the official logo, black on light, white on dark */
+.built-on-stellar { display: inline-flex; align-items: center; gap: 7px; color: var(--sub, #6a7089); font-size: 12px; font-weight: 500; }
+.built-on-stellar img { height: 15px; width: auto; }
+.built-on-stellar .bos-dark { display: none; }
+html[data-theme="dark"] .built-on-stellar .bos-light { display: none; }
+html[data-theme="dark"] .built-on-stellar .bos-dark { display: inline; }
 
 /* the toggle */
 .theme-toggle { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line, #e4e7f1); border-radius: 999px; background: transparent; color: var(--sub, #6a7089); cursor: pointer; }
