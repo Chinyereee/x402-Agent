@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ThemeToggle } from "@/components/ThemeToggle.tsx";
 import "../ws/ws.css";
 import "./welcome.css";
 
@@ -23,6 +24,7 @@ export default function Welcome() {
   }
   return (
     <div className="wl aurora">
+      <ThemeToggle className="wl-theme" />
       <div className="wl-inner">
         <img className="wl-star" src="/porcelain/star2.webp" alt="" aria-hidden="true" />
         <p className="wl-eyebrow">Receipts · Stellar testnet</p>

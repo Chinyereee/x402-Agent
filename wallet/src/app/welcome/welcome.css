@@ -1,5 +1,6 @@
 /* Front door: white aurora, a porcelain star above, the porcelain street (the chain) below. */
 .wl { position: fixed; inset: 0; z-index: 5; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; overflow-y: auto; padding: 8vh 16px 3vh; color: var(--ink); text-align: center; }
+.wl-theme { position: absolute; top: 16px; right: 16px; z-index: 2; }
 .wl-inner { position: relative; width: min(520px, 100%); margin: auto 0 0; }
 .wl-star { width: 104px; height: auto; margin-bottom: 10px; filter: drop-shadow(0 12px 20px rgba(28, 40, 110, 0.18)); animation: wl-float 6s ease-in-out infinite; }
 @keyframes wl-float { 50% { transform: translateY(-6px) rotate(3deg); } }

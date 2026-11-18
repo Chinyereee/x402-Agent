@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Fragment } from "react";
 import { GoldDust } from "@/components/GoldDust.tsx";
+import { ThemeToggle } from "@/components/ThemeToggle.tsx";
 import "./site.css";
 
 // The product site: what Receipts is, how a payment works, the proof on Stellar, and the design story.
@@ -42,6 +43,7 @@ export default function Site() {
           <a href="#sellers">For sellers</a>
           <a href="#proof">Proof</a>
           <a href="#story">Design</a>
+          <ThemeToggle />
           <Link className="os-cta" href="/welcome">Open the wallet</Link>
         </nav>
       </header>

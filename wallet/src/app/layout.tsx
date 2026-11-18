@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav.tsx";
+import { THEME_SCRIPT } from "@/components/ThemeToggle.tsx";
 import "./globals.css";
+import "./night.css";
 
 export const metadata: Metadata = {
   title: "Receipts",
@@ -9,8 +11,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="stylesheet"

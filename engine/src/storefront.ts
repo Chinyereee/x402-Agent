@@ -37,6 +37,13 @@ export function storefront(config: Pick<EngineConfig, 'price' | 'network'>, migr
   pre { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--line); border-radius: 12px; background: #fff; text-align: left; font: 13px/1.6 ui-monospace, Menlo, monospace; overflow-x: auto; }
   .fine { margin-top: 22px; color: var(--sub); font-size: 13px; }
   a { color: var(--cobalt); }
+  @media (prefers-color-scheme: dark) {
+    :root { --ink: #e8ecfb; --sub: #9aa3c4; --line: rgba(170, 185, 255, 0.13); --cobalt: #5b74f0; --gold: #d9b86c; }
+    body { background: radial-gradient(45% 38% at 12% 8%, rgba(66, 86, 220, 0.32), transparent 70%), radial-gradient(38% 30% at 88% 6%, rgba(138, 92, 246, 0.22), transparent 70%), radial-gradient(50% 40% at 70% 92%, rgba(31, 182, 166, 0.14), transparent 70%), linear-gradient(180deg, #070b1f, #0b1236); }
+    li, pre { background: rgba(16, 24, 58, 0.66); }
+    a { color: #8da0ff; }
+    .shop { filter: drop-shadow(0 0 22px rgba(120, 140, 255, 0.22)) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.45)); }
+  }
 </style>
 </head>
 <body>

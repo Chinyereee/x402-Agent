@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WsProvider, useWs } from "./context.tsx";
 import { Icon, I } from "./icons.tsx";
+import { ThemeToggle } from "@/components/ThemeToggle.tsx";
 import "./ws.css";
 
 /*
@@ -115,6 +116,7 @@ function Shell({ children }: { children: React.ReactNode }) {
             <b>Lina</b>
             <small>Stellar testnet · test money</small>
           </span>
+          <ThemeToggle className="ws-theme" />
         </div>
       </aside>
       {mobile && <div className="ws-scrim" onClick={() => setMobile(false)} />}
