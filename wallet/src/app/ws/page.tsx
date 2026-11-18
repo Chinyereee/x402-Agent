@@ -135,15 +135,16 @@ export default function Assistant() {
     }
     const tid = id;
     add(tid, { k: "user", text: q });
-    if (!ai?.configured) {
+    // Without a model, or once today's AI replies are used up: the few answers the page can give for sure.
+    const simply = (note?: string) => {
       const r = ruleReply(q, live);
-      add(tid, { k: "ai", text: r.text, via: "rules" }, ...(r.then ? [r.then] : []));
+      add(tid, { k: "ai", text: note ? `${note} ${r.text}` : r.text, via: "rules" }, ...(r.then ? [r.then] : []));
       if (r.open) {
         openTab(r.open);
         add(tid, { k: "tool", tone: "ok", label: `Opened ${r.open.title} beside the conversation.`, tab: r.open });
       }
-      return;
-    }
+    };
+    if (!ai?.configured) return simply();
     setBusy(true);
     try {
       const msgs = [...items, { k: "user", text: q } as Item]
@@ -151,6 +152,7 @@ export default function Assistant() {
         .map((x) => ({ role: x.k === "user" ? "user" : "assistant", content: x.text }));
       const res = await fetch("/api/ws/ask", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: msgs }) });
       const body = await res.json();
+      if (res.status === 429) return simply(body.error);
       if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
       const a = body.action;
       const then: Item | null = a?.type === "buy" && byPath(a.path) ? { k: "buy", path: a.path } : a?.type === "rules" && a.text ? { k: "rules", text: String(a.text) } : null;
