@@ -13,6 +13,7 @@ export function storefront(config: Pick<EngineConfig, 'price' | 'network'>, migr
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>402 Found · codemod engine</title>
+<link rel="icon" type="image/png" href="/assets/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fraunces:opsz,wght@9..144,400;9..144,500&display=swap">
 <style>
