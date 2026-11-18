@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { CATALOG, byPath } from "@/lib/catalog.ts";
 import { useWs, type Item, type Tab, type Thread } from "./context.tsx";
 import { Icon, I } from "./icons.tsx";
+import { GoldDust } from "@/components/GoldDust.tsx";
 
 /*
  * Assistant: the conversation is the largest area. Anything to look at or decide opens as a tab
@@ -230,19 +231,25 @@ export default function Assistant() {
 
       <div className="ws-flow">
         {!items.length ? (
-          <div className="ws-hero-wrap">
-            <div className="ws-scene" aria-hidden="true" />
-            <div className="ws-hero">
-              {welcome && (
-                <div className="ws-welcome">
-                  <span className="ws-welcome-i" aria-hidden="true"><Icon d={I.guide} size={18} /></span>
-                  <p>
-                    <b>New here?</b> Think of it as pocket money for your AI helper: you set the house rules, it shows you a receipt for every cent. Test money only.
-                  </p>
-                  <a href="/ws/guide">See how, 1 minute</a>
-                  <button type="button" aria-label="Hide this" onClick={dismissWelcome}><Icon d={I.close} size={14} /></button>
+          <div className="ws-hero-wrap aurora">
+            <img className="ws-scene-img" src="/porcelain/scene.webp" alt="" aria-hidden="true" />
+            <div className="ws-scene-gold" aria-hidden="true" />
+            <GoldDust />
+            {welcome && (
+              <div className="ws-intro" role="dialog" aria-modal="true" aria-label="New here?" onClick={dismissWelcome}>
+                <div className="ws-intro-card" onClick={(e) => e.stopPropagation()}>
+                  <img src="/porcelain/purse.webp" alt="" aria-hidden="true" />
+                  <h2>Pocket money for your AI helper</h2>
+                  <p>You set the house rules. It pays for small things inside them, and shows you a receipt for every cent. Test money only.</p>
+                  <div className="ws-intro-bar">
+                    <a href="/ws/guide" onClick={dismissWelcome}>See how it works</a>
+                    <button type="button" className="ws-btn main" onClick={dismissWelcome}>Got it</button>
+                  </div>
                 </div>
-              )}
+              </div>
+            )}
+            <div className="ws-hero">
+              <img className="ws-hero-star" src="/porcelain/star2.webp" alt="" aria-hidden="true" />
               <p className="ws-eyebrow">Receipts · Assistant</p>
               <h1>{hello}, Lina</h1>
               <p className="ws-lede">
@@ -379,6 +386,7 @@ function Thread({ items, busy, openTab, buy, decide, saveRules }: {
         if (x.k === "decide")
           return (
             <div key={i} className={`ws-confirm ws-ask${x.state ? " done" : ""}`}>
+              {!x.state && <img className="ws-ask-art" src="/porcelain/bell.webp" alt="" aria-hidden="true" />}
               <p className="ws-eyebrow">{x.state ? (x.state === "allowed" ? "You allowed it once" : "You declined") : "Your agent is asking"}</p>
               <p className="ws-ask-q">{x.what} costs {x.amount}, more than your cap per payment. Pay it this one time?</p>
               {!x.state && (

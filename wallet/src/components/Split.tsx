@@ -24,7 +24,7 @@ type Ev =
   | { type: "end" };
 
 type Step = { key: string; title: string; detail?: string; tone: "ok" | "work" | "ask" | "bad" };
-type Log = { at: string; dir: "in" | "out" | "note" | "ok" | "bad"; text: string; href?: string };
+type Log = { at: string; dir: "in" | "out" | "note" | "ok" | "gold" | "bad"; text: string; href?: string };
 type Plan = { repo: string; prefix: string; pulls: { number: number; title: string; branch: string }[]; branches: string[]; error?: string };
 
 const usdc = (u: number) => (u / 1e7).toFixed(u % 100_000 === 0 ? 2 : 3);
@@ -84,7 +84,7 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
         if (done?.needsHuman?.length) say("note", `${done.needsHuman.length} spot(s) left for a person, listed in the PR`);
         if (pr) say("ok", `pull request opened: ${prLabel(pr)}`, pr);
         else say("ok", "job done");
-        if (e.receipt.tx) say("ok", `settled on Stellar · tx ${short(e.receipt.tx)}`, e.receipt.link);
+        if (e.receipt.tx) say("gold", `settled on Stellar · tx ${short(e.receipt.tx)}`, e.receipt.link);
         say("out", "200 OK · PAYMENT-RESPONSE");
         break;
       }
@@ -194,7 +194,13 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
 
       <div className="sp-cols">
         <section className="sp-wallet" aria-label="Receipts wallet">
-          <p className="sp-col-t">Lina&rsquo;s Receipts wallet</p>
+          <div className="sp-col-head">
+            <img src="/porcelain/purse.webp" alt="" aria-hidden="true" />
+            <div>
+              <p className="sp-col-t">The buyer</p>
+              <h2>Lina&rsquo;s Receipts wallet</h2>
+            </div>
+          </div>
           <div className="sp-rules">
             <span>${usdc(rules.monthly)} a month</span>
             <span>at most ${usdc(rules.cap)} a payment</span>
@@ -235,14 +241,20 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
         </section>
 
         <section className="sp-engine" aria-label="Codemod engine">
-          <p className="sp-col-t">Codemod engine · log</p>
+          <div className="sp-col-head">
+            <img src="/porcelain/shop.webp" alt="" aria-hidden="true" />
+            <div>
+              <p className="sp-col-t">The shop</p>
+              <h2>Codemod engine</h2>
+            </div>
+          </div>
           <p className="sp-src">Lines show what the engine returned to the wallet. Live engine events will replace them.</p>
           <div className="sp-log" role="log">
             {!log.length && <p className="sp-dim">$ waiting for a request…</p>}
             {log.map((l, i) => (
               <p key={i} className={`sp-line ${l.dir}`}>
                 <span className="sp-at">{l.at}</span>
-                <span className="sp-dir">{l.dir === "in" ? "→" : l.dir === "out" ? "←" : l.dir === "ok" ? "✓" : l.dir === "bad" ? "✕" : "·"}</span>
+                <span className="sp-dir">{l.dir === "in" ? "→" : l.dir === "out" ? "←" : l.dir === "ok" || l.dir === "gold" ? "✓" : l.dir === "bad" ? "✕" : "·"}</span>
                 {l.href ? <a href={l.href} target="_blank" rel="noreferrer">{l.text} ↗</a> : <span>{l.text}</span>}
               </p>
             ))}

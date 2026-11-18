@@ -72,7 +72,7 @@ function Shell({ children }: { children: React.ReactNode }) {
     <div className={`ws${railed ? " ws-railed" : ""}`}>
       <aside className={`ws-side${mobile ? " ws-side-open" : ""}`} aria-label="Navigation">
         <div className="ws-brand">
-          <span className="ws-mark">R</span>
+          <img className="ws-mark-img" src="/porcelain/star2.webp" alt="" aria-hidden="true" />
           <span className="ws-brand-t">
             <b>Receipts</b>
             <small>An allowance, not your wallet</small>

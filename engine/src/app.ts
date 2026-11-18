@@ -6,6 +6,7 @@ import { ExactStellarScheme } from '@x402/stellar/exact/server';
 
 import type { EngineConfig } from './config.js';
 import { preflight, type GitHubApi, type PreflightResult } from './preflight.js';
+import { storefront } from './storefront.js';
 
 export const MIGRATE_PATH = '/api/v1/migrate';
 
@@ -109,6 +110,12 @@ export function createApp({ config, facilitator, github, runJob }: AppDeps): Exp
     res.setHeader('PAYMENT-RESPONSE', done.paymentResponse);
     res.status(200).json(done.body);
   });
+
+  // The shop's front door: what it sells, the price and how to pay. Free.
+  app.get('/', (_req, res) => {
+    res.type('html').send(storefront(config, MIGRATE_PATH));
+  });
+  app.use('/assets', express.static(new URL('../public', import.meta.url).pathname, { maxAge: '7d' }));
 
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
