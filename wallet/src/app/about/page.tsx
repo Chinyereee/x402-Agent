@@ -140,7 +140,7 @@ export default function Site() {
       <section className="os-sec os-story" id="story">
         <p className="os-eyebrow">The design</p>
         <h2>Blue that travelled</h2>
-        <p className="os-story-lede">Blue-and-white porcelain from Jingdezhen sailed to Europe by the shipload; potters in Delft learned to make their own; women dyers in Nigeria have long made Adire, indigo cloth of dotted circles and patterned squares. Three crafts, each a traded thing, meet in our pieces. The fine gold flecks are sajin, a Chinese art of scattering gold leaf: here each fleck is a small sum, and a person on the chain.</p>
+        <p className="os-story-lede">Two of us, two cultures: Elodie brings Chinese blue-and-white, Chinyere brings Nigerian Adire, and they meet in Delft, where Chinese blue-and-white once travelled. Blue-and-white porcelain from Jingdezhen sailed to Europe by the shipload; potters in Delft learned to make their own; women dyers in Nigeria have long made Adire, indigo cloth of dotted circles and patterned squares. Three crafts, each a traded thing, meet in our pieces. The fine gold flecks are sajin, a Chinese art of scattering gold leaf: here each fleck is a small sum, and a person on the chain.</p>
         <div className="os-cols3">
           <figure><img src="/about/china-kraak-wanli.webp" alt="Blue-and-white dish from Jingdezhen, Wanli period" /><figcaption>China · Jingdezhen, Wanli period. Honolulu Museum of Art, CC0</figcaption></figure>
           <figure><img src="/about/delft-plate-cleveland.webp" alt="Delftware plate" /><figcaption>Holland · Delftware. Cleveland Museum of Art, CC0</figcaption></figure>

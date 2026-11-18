@@ -2,7 +2,7 @@
 .os {
   --ink: #161b33; --sub: #6a7089; --line: #e4e7f1; --cobalt: #2443b5; --gold: #a9843f;
   --serif: "Fraunces", Georgia, serif;
-  position: relative; z-index: 5; min-height: 100vh; color: var(--ink);
+  position: fixed; inset: 0; z-index: 5; overflow-y: auto; color: var(--ink);
   background: radial-gradient(45% 30% at 15% 4%, rgba(54, 92, 214, 0.1), transparent 70%), radial-gradient(40% 26% at 88% 2%, rgba(214, 178, 104, 0.14), transparent 70%), #fbfbfd;
 }
 .os h1, .os h2, .os h3 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em; }
@@ -36,7 +36,7 @@
 @keyframes os-float { 50% { transform: translateY(-8px) rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .os-hero-star { animation: none; } }
 
-.os-sec { max-width: 1120px; margin: 0 auto; padding: 56px 16px; }
+.os-sec { max-width: 1120px; margin: 0 auto; padding: 56px 16px; scroll-margin-top: 64px; }
 .os-sec h2 { margin: 0 0 28px; font-size: clamp(26px, 3.2vw, 38px); line-height: 1.15; }
 .os-cols3, .os-cols2 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .os-cols2 { grid-template-columns: repeat(2, 1fr); }
@@ -74,6 +74,8 @@
 
 @media (max-width: 860px) {
   .os-top nav a:not(.os-cta) { display: none; }
+  .os-brand small { display: none; }
+  .os-cta { padding: 7px 14px; font-size: 13px; white-space: nowrap; }
   .os-hero, .os-split, .os-split.rev { grid-template-columns: 1fr; gap: 24px; }
   .os-hero { padding-top: 32px; }
   .os-hero-art { min-height: 260px; }
