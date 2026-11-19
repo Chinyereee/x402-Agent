@@ -52,6 +52,13 @@ export interface AppDeps {
   runJob: RunJob;
 }
 
+/** Error text for the caller. A failed git command's message carries its full command line, which includes the token. */
+function safeMessage(err: unknown): string {
+  const msg = (err as Error)?.message ?? 'job_failed';
+  if (msg.startsWith('Command failed')) return 'job_failed';
+  return msg.replace(/basic [A-Za-z0-9+/=]{16,}/gi, 'basic ***');
+}
+
 class JobTimeoutError extends Error {
   constructor() {
     super('job_timeout');
@@ -192,11 +199,13 @@ export function createApp({ config, facilitator, github, runJob }: AppDeps): Exp
         res.status(504).json({ status: 'failed', error: 'job_timeout' });
         return;
       }
-      res.status(500).json({ status: 'failed', error: (err as Error).message });
+
+      console.error('job failed:', safeMessage(err));
+      res.status(500).json({ status: 'failed', error: safeMessage(err) });
     }
   });
 
-    // Last in the chain: any error becomes a short JSON answer. Express's default page
+  // Last in the chain: any error becomes a short JSON answer. Express's default page
   // prints the stack trace and the server's file paths.
   app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status && err.status >= 400 && err.status < 500 ? err.status : 500;
