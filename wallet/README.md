@@ -30,9 +30,24 @@ Setup: create `wallet/.env.local` (never commit it) with `WALLET_AGENT_SECRET`, 
 - **Engine on Render**: the Blueprint in [`render.yaml`](../render.yaml). Render asks for `PAY_TO` and `GITHUB_TOKEN`; the free plan sleeps when idle, so the first job after a while takes longer.
 - **Wallet on Vercel**: import the repo with Root Directory `wallet`. Add the same variables as `.env.local`, with `ENGINE_BASE_URL` set to the Render URL, plus:
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: receipts, rules and allowance history live in the `wallet_state` table ([`supabase/schema.sql`](supabase/schema.sql)), because Vercel's disk does not persist. Without them the wallet uses `wallet/data/` as before.
+  - `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` for the assistant (see below).
   - `DEMO_CODE`: anyone can look around; spending test money, opening a pull request, changing rules or asking the assistant needs this code (Settings → Demo code). Without it, everything is open (local dev).
 - Leave `SERVICE_BASE_URL` out online: the workshop kit runs only on a laptop, so its items are hidden.
 - `node --env-file=.env.local scripts/push-state.mjs` copies the laptop's history into Supabase once.
+
+## The assistant (`/ws`)
+
+The workspace assistant explains rules and receipts in plain words and proposes actions as cards; it never pays or changes rules by itself. Any OpenAI-format chat endpoint works; we use Claude:
+
+```
+AI_BASE_URL=https://api.anthropic.com/v1
+AI_API_KEY=...            # a key from a separate, prepaid account with auto-reload off
+AI_MODEL=claude-sonnet-5-5
+AI_DAILY_LIMIT=50         # optional: replies a day, then simple answers without AI
+AI_MAX_TOKENS=600         # optional: longest reply
+```
+
+Spending stays capped three ways: the prepaid balance on the provider account (auto-reload off), the daily reply cap in the app, and, online, the demo code. No model sits in the payment path. Settings shows today's and this month's replies and tokens. Without these variables the workspace still answers simple questions from the receipts.
 
 ## Rules in force, Home and the product page
 
