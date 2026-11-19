@@ -84,7 +84,7 @@ export async function preflight(
         ok: false,
         status: 403,
         error: 'no_push_access',
-        message: 'install the 402 Found GitHub App on this repository so the engine can open a pull request',
+               message: 'the engine cannot push to this repository: give its GitHub token access, or fork the repo and ask again with the fork',
       };
     }
     if (info.sizeKb > limits.maxRepoKb) {

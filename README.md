@@ -84,7 +84,7 @@ On Stellar, the buyer signs a Soroban authorization entry. It does not hold the 
 ## Flow
 
 1. The agent calls `POST /api/v1/migrate` with `{ "repoUrl": "https://github.com/<owner>/<repo>" }`.
-2. Free preflight: github.com repo, GitHub App installed, ethers v5 present, size under the limit. A failure returns 4xx and no payment request.
+2. Free preflight: github.com repo, the engine can push to it (a scoped token for the demo, a GitHub App in the product), ethers v5 present, size under the limit. A failure returns 4xx and no payment request.
 3. The engine answers `402` with `PAYMENT-REQUIRED`.
 4. The wallet checks the owner's rules in code (budget, cap per payment, allowed services). If they pass, it signs the Soroban authorization entry and repeats the POST with `PAYMENT-SIGNATURE`. Over the cap it asks the owner; off the list it blocks. No model sits in this step.
 5. The engine verifies through the facilitator, clones, runs the codemod, regenerates the lockfile and opens the pull request.
@@ -107,11 +107,12 @@ Success body:
 | Code | When | Paid? |
 |---|---|---|
 | 400 | Not a github.com repo | No payment requested |
-| 403 | GitHub App not installed | No payment requested |
+| 403 | The engine's token cannot push to the repo | No payment requested |
 | 404 | Repo not found | No payment requested |
 | 413 | Repo too large | No payment requested |
 | 422 | No ethers v5 | No payment requested |
 | 5xx | Failure after verification | Never settled |
+| 502 | GitHub unreachable | No payment requested |
 
 A retry with the same payment returns the same `jobId` and pull request.
 

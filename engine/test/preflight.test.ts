@@ -66,7 +66,7 @@ describe('preflight', () => {
     expect(await preflight(url, gh, limits)).toMatchObject({ ok: false, status, error });
   });
 
-  it('403 when the engine cannot push to the repo (GitHub App not installed)', async () => {
+  it('403 when the engine cannot push to the repo (token cannot push)', async () => {
     gh.add('a/b', { 'package.json': pkg({ ethers: '^5.7.0' }) }, { canPush: false });
     expect(await preflight('https://github.com/a/b', gh, limits)).toMatchObject({ ok: false, status: 403, error: 'no_push_access' });
   });
