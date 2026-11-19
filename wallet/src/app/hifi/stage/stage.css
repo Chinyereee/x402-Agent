@@ -138,16 +138,22 @@
 @keyframes drop { from { transform: translateY(-70px); opacity: 0; } 60% { opacity: 1; } }
 
 /* the allowance as a card */
-.st-card { position: relative; border-radius: 16px; padding: 14px 16px; margin-bottom: 14px; color: #fff; background: linear-gradient(135deg, #1d4fbf, #1677ff 60%, #5aa0ff); box-shadow: 0 10px 22px rgba(22, 119, 255, .25); overflow: hidden; }
-.st-card-top { display: flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 600; opacity: .9; }
+/* the allowance card as a porcelain tile: white glaze, gold-leaf edge, Adire rays in one corner, cobalt type */
+.st-card { position: relative; border-radius: 18px; padding: 16px 18px; margin-bottom: 14px; color: #1f3a9e; overflow: hidden;
+  background: radial-gradient(120% 90% at 100% 0%, #ffffff 0%, rgba(255, 255, 255, 0) 55%), linear-gradient(150deg, #fdfdff 0%, #f2f4fa 55%, #e7ebf6 100%);
+  border: 1.5px solid #c9a75e; box-shadow: inset 0 1px 0 #fff, inset 0 -8px 18px rgba(36, 67, 181, 0.05), 0 14px 28px rgba(28, 40, 110, 0.12); }
+.st-card::before { content: ""; position: absolute; left: -6px; top: -6px; width: 58%; aspect-ratio: 1; background: url('/porcelain/card-corner.webp') no-repeat left top / contain; opacity: 0.9; pointer-events: none; }
+.st-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.7) 50%, transparent 60%); opacity: 0.55; pointer-events: none; }
+.st-card > * { position: relative; z-index: 1; }
+.st-card-top { display: flex; align-items: center; justify-content: flex-end; gap: 10px; color: #a9843f; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
 .st-chip { width: 30px; height: 22px; border-radius: 5px; background: linear-gradient(135deg, #f6d77a, #d9a93a); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
-.st-card-avail { display: flex; flex-direction: column; margin: 10px 0 6px; }
-.st-card-avail span { font-size: 12px; opacity: .8; }
-.st-card-avail b { font-size: 36px; letter-spacing: -0.02em; line-height: 1.05; }
-.st-card-limit { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; opacity: .85; }
+.st-card-avail { display: flex; flex-direction: column; align-items: flex-end; margin: 26px 0 6px; }
+.st-card-avail span { font-size: 12px; color: #6a7089; }
+.st-card-avail b { font-family: "Fraunces", Georgia, serif; font-weight: 500; font-size: 40px; letter-spacing: -0.01em; line-height: 1.05; color: #1f3a9e; }
+.st-card-limit { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: #6a7089; text-align: right; }
 .st-card.lit { animation: cardlit 1.4s ease-out; }
 @keyframes cardlit { 0% { box-shadow: 0 0 0 0 rgba(22,119,255,.6); } 40% { box-shadow: 0 0 0 10px rgba(22,119,255,.18); } 100% { box-shadow: 0 10px 22px rgba(22,119,255,.25); } }
-.st-card.declined { background: linear-gradient(135deg, #6b7280, #9aa1ad); animation: shake .5s; }
+.st-card.declined { filter: grayscale(1); animation: shake .5s; }
 .st-card-stamp { position: absolute; right: 14px; top: 38%; font-weight: 800; letter-spacing: .14em; font-size: 20px; color: #fff; background: var(--block); padding: 4px 12px; border-radius: 6px; transform: rotate(-8deg); animation: stamp .35s cubic-bezier(.2, 1.6, .4, 1); }
 @keyframes shake { 0%, 100% { transform: translateX(0); } 20% { transform: translateX(-8px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(5px); } }
 

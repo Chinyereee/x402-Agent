@@ -127,5 +127,5 @@ export const STATUS_LABEL: Record<Status, string> = {
   paid: "Paid",
   pending: "Pending",
   needs_you: "Needs you",
-  blocked: "Blocked",
+  blocked: "Stopped",
 };

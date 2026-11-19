@@ -1,0 +1,97 @@
+/* Starry night: deep indigo sky, a dark aurora, porcelain that glows, gold dust as stars.
+   Everything keys off html[data-theme="dark"]; the light porcelain look stays the default elsewhere. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #070b1f;
+  --card: #10183a;
+  --ink: #e8ecfb;
+  --sub: #9aa3c4;
+  --line: rgba(170, 185, 255, 0.13);
+  --primary: #6f86ff;
+  --primary-soft: rgba(111, 134, 255, 0.16);
+  --pending-soft: rgba(111, 134, 255, 0.16);
+  --paid: #7fd65a;
+  --paid-soft: rgba(127, 214, 90, 0.14);
+  --ask: #f0c25a;
+  --ask-soft: rgba(240, 194, 90, 0.12);
+  --block: #ff7a7a;
+  --block-soft: rgba(255, 122, 122, 0.12);
+  --shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] .ws, html[data-theme="dark"] .wl, html[data-theme="dark"] .os, html[data-theme="dark"] .sp {
+  --ink: #e8ecfb;
+  --sub: #9aa3c4;
+  --line: rgba(170, 185, 255, 0.13);
+  --primary: #5b74f0;
+  --primary-soft: rgba(111, 134, 255, 0.16);
+  --gold: #d9b86c;
+  --gold-soft: rgba(217, 184, 108, 0.14);
+  --cobalt: #5b74f0;
+  --shadow: 0 12px 34px rgba(0, 0, 0, 0.35);
+}
+html[data-theme="dark"] body { background: #070b1f; color: #e8ecfb; }
+
+/* the night sky with a dark aurora */
+html[data-theme="dark"] .ws, html[data-theme="dark"] .os, html[data-theme="dark"] .sp, html[data-theme="dark"] .aurora {
+  background:
+    radial-gradient(45% 38% at 12% 8%, rgba(66, 86, 220, 0.32), transparent 70%),
+    radial-gradient(38% 30% at 88% 6%, rgba(138, 92, 246, 0.22), transparent 70%),
+    radial-gradient(50% 40% at 70% 92%, rgba(31, 182, 166, 0.14), transparent 70%),
+    linear-gradient(180deg, #070b1f 0%, #0a1030 60%, #0b1236 100%);
+}
+html[data-theme="dark"] .aurora::before {
+  background:
+    radial-gradient(38% 32% at 18% 22%, rgba(80, 110, 255, 0.28), transparent 70%),
+    radial-gradient(30% 26% at 82% 16%, rgba(150, 100, 255, 0.22), transparent 70%),
+    radial-gradient(46% 40% at 60% 78%, rgba(40, 200, 180, 0.14), transparent 70%);
+}
+html[data-theme="dark"] .aurora::after {
+  background:
+    radial-gradient(34% 30% at 70% 40%, rgba(120, 140, 255, 0.14), transparent 70%),
+    radial-gradient(28% 24% at 30% 70%, rgba(217, 184, 108, 0.08), transparent 70%);
+}
+
+/* glass surfaces instead of white cards */
+html[data-theme="dark"] :is(.ws-side, .ws-card, .ws-desk-card, .ws-composer, .ws-confirm, .ws-step, .ws-set, .ws-tool, .ws-welcome, .ws-intro-card, .ws-app, .ws-tabs, .ws-guide-sell, .ws-guide-ask a, .ws-askthis, .ws-btn:not(.main), .os-card, .os-steps li, .os-btn:not(.main), .sp-wallet, .sp-engine, .sp-btn:not(.main), .sp-reset, .wl-form input, .ws-unlock input, .ws-rules-input) {
+  background: rgba(16, 24, 58, 0.66);
+  border-color: rgba(170, 185, 255, 0.14);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
+}
+html[data-theme="dark"] .ws-desk-card.ask, html[data-theme="dark"] .ws-ask { background: rgba(240, 194, 90, 0.1); border-color: rgba(240, 194, 90, 0.3); }
+html[data-theme="dark"] .ws-desk-card.try, html[data-theme="dark"] .ws-guide-sell { background: linear-gradient(135deg, rgba(91, 116, 240, 0.18), rgba(16, 24, 58, 0.6)); }
+html[data-theme="dark"] .ws-intro { background: rgba(5, 8, 24, 0.7); }
+html[data-theme="dark"] .ws-composer textarea, html[data-theme="dark"] .ws-rules-input { color: var(--ink); }
+html[data-theme="dark"] :is(.ws-lede, .ws-item > button:first-child, .ws-burger, .ws-mic, .ws-set p, .ws-step p, .ws-guide-sell p, .ws-guide-lede, .ws-welcome p, .ws-rules-done, .ws-tool, .sp-step span, .sp-mono, .os-card p, .os-steps p, .os-split p, .os-story-lede) { color: var(--sub); }
+html[data-theme="dark"] :is(.ws-lede b, .ws-welcome p b, .ws-ai p) { color: var(--ink); }
+html[data-theme="dark"] .ws-nav a:hover, html[data-theme="dark"] .ws-item:hover { background: rgba(170, 185, 255, 0.08); }
+html[data-theme="dark"] .ws-mbar, html[data-theme="dark"] .os-top { background: rgba(7, 11, 31, 0.78); border-color: rgba(170, 185, 255, 0.1); }
+html[data-theme="dark"] .os-brand, html[data-theme="dark"] .os-brand:hover { color: var(--ink) !important; }
+html[data-theme="dark"] .ws-frame { background: #070b1f; }
+
+/* the street drawing turns to pale blue lines on the night sky */
+html[data-theme="dark"] .ws-scene-img { mix-blend-mode: screen; filter: invert(1) hue-rotate(180deg) brightness(0.85); opacity: 0.28; }
+html[data-theme="dark"] .ws-scene-gold { opacity: 0.8; }
+
+/* porcelain glows a little in the dark */
+html[data-theme="dark"] :is(.ws-hero-star, .wl-star, .wl-street, .ws-step-art, .ws-sell-art, .ws-ask-art, .ws-intro-card img, .ws-mark-img, .os-hero-card, .os-hero-star, .os-steps img, .os-split > img, .os-foot > img, .sp-col-head img) {
+  filter: drop-shadow(0 0 22px rgba(120, 140, 255, 0.22)) drop-shadow(0 14px 22px rgba(0, 0, 0, 0.45));
+}
+
+/* the job log and the classic pages inside the app area */
+html[data-theme="dark"] .sp-engine { background: rgba(10, 16, 44, 0.8); color: #c9d2f5; }
+html[data-theme="dark"] .sp-line.gold { color: #e8c983; background: linear-gradient(90deg, rgba(217, 184, 108, 0.2), transparent); }
+html[data-theme="dark"] .card, html[data-theme="dark"] .row, html[data-theme="dark"] .lv-onchain, html[data-theme="dark"] .lv-item { background: rgba(16, 24, 58, 0.66); border-color: rgba(170, 185, 255, 0.14); color: var(--ink); }
+
+/* Built on Stellar: the official logo, black on light, white on dark */
+.built-on-stellar { display: inline-flex; align-items: center; gap: 7px; color: var(--sub, #6a7089); font-size: 12px; font-weight: 500; }
+.built-on-stellar img { height: 15px; width: auto; }
+.built-on-stellar .bos-dark { display: none; }
+html[data-theme="dark"] .built-on-stellar .bos-light { display: none; }
+html[data-theme="dark"] .built-on-stellar .bos-dark { display: inline; }
+
+/* the toggle */
+.theme-toggle { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line, #e4e7f1); border-radius: 999px; background: transparent; color: var(--sub, #6a7089); cursor: pointer; }
+.theme-toggle:hover { color: var(--ink, #161b33); border-color: var(--primary, #2443b5); }
+
+html[data-theme="dark"] .ws-seal { background: #e8ecfb; color: #0a1030; }

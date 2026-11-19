@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { WsLink as Link } from "@/components/WsLink.tsx";
 import { Pill } from "@/components/Pill.tsx";
 import { usd } from "@/lib/money.ts";
 import { ledger, readReceipts } from "@/lib/live.ts";

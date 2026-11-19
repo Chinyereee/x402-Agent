@@ -9,6 +9,24 @@ import { ledger, readReceipts } from "./live.ts";
 import { readRules } from "./rules-store.ts";
 import { CATALOG } from "./catalog.ts";
 import { usd } from "./money.ts";
+import { readJSON, writeJSON } from "./kv.ts";
+
+// Spending guard on our side (the provider's prepaid credit is the hard stop): at most
+// AI_DAILY_LIMIT replies a day (default 50), each at most AI_MAX_TOKENS long (default 600).
+type Usage = { day: string; replies: number; month: string; monthReplies: number; inputTokens: number; outputTokens: number };
+const dailyLimit = () => Number(process.env.AI_DAILY_LIMIT) || 50;
+
+export async function aiUsage(): Promise<Usage & { dailyLimit: number }> {
+  const now = new Date().toISOString();
+  const u = (await readJSON<Usage>("ai-usage")) ?? { day: "", replies: 0, month: "", monthReplies: 0, inputTokens: 0, outputTokens: 0 };
+  const day = now.slice(0, 10), month = now.slice(0, 7);
+  return {
+    day, replies: u.day === day ? u.replies : 0,
+    month, monthReplies: u.month === month ? u.monthReplies : 0,
+    inputTokens: u.month === month ? u.inputTokens : 0, outputTokens: u.month === month ? u.outputTokens : 0,
+    dailyLimit: dailyLimit(),
+  };
+}
 
 export function aiStatus() {
   const base = (process.env.AI_BASE_URL || "").replace(/\/+$/, "");
@@ -22,7 +40,7 @@ export function aiStatus() {
 }
 
 export type Action =
-  | { type: "open"; what: "home" | "rules" | "pay" }
+  | { type: "open"; what: "home" | "rules" | "pay" | "job" | "guide" }
   | { type: "receipt"; id: string }
   | { type: "rules"; text: string }
   | { type: "buy"; path: string };
@@ -30,9 +48,10 @@ export type Action =
 const SYSTEM = `You are the desk where a person looks after the AI agent that spends money for her.
 The agent pays small amounts for online services with test USDC on Stellar, only inside the rules she wrote.
 Talk plainly and warmly, short sentences, no jargon, no markdown. Answer in the language she writes in.
+She may be new to crypto and AI. Explain with everyday things first (pocket money, a prepaid card, a price tag, a shop receipt), and name the technical word only after, if at all.
 Use only the facts in CONTEXT. Amounts are in dollars. Never invent a receipt or a balance.
 You cannot pay or change rules yourself. When she wants something done, end your reply with exactly one line:
-ACTION {"type":"open","what":"home"|"rules"|"pay"}   to show her overview, her rules, or the list of things to buy
+ACTION {"type":"open","what":"home"|"rules"|"pay"|"job"|"guide"}   to show her overview, her rules, the list of things to buy, one codemod job seen from both sides, or the four-step guide
 ACTION {"type":"receipt","id":"<receipt id from CONTEXT>"}   to show one receipt
 ACTION {"type":"rules","text":"<the full new rules in plain words, like the current ones>"}   to propose new rules; she confirms
 ACTION {"type":"buy","path":"<path from CATALOG>"}   to propose a purchase; her rules check it, and she confirms first`;
@@ -55,16 +74,27 @@ export async function ask(messages: { role: string; content: string }[]) {
     .slice(-12)
     .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string")
     .map((m) => ({ role: m.role, content: m.content.slice(0, 4000) }));
+  const used = await aiUsage();
+  if (used.replies >= used.dailyLimit)
+    throw Object.assign(new Error(`The assistant has used its ${used.dailyLimit} replies for today, so this answer comes from your receipts without AI.`), { status: 429 });
   const base = process.env.AI_BASE_URL!.replace(/\/+$/, "");
   const key = process.env.AI_API_KEY;
   const res = await fetch(`${base}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(key ? { Authorization: `Bearer ${key}` } : {}) },
-    body: JSON.stringify({ model: process.env.AI_MODEL, messages: [{ role: "system", content: `${SYSTEM}\n\nCONTEXT:\n${JSON.stringify(await context())}` }, ...turns] }),
+    body: JSON.stringify({ model: process.env.AI_MODEL, max_tokens: Number(process.env.AI_MAX_TOKENS) || 600, messages: [{ role: "system", content: `${SYSTEM}\n\nCONTEXT:\n${JSON.stringify(await context())}` }, ...turns] }),
     signal: AbortSignal.timeout(30_000),
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) throw Object.assign(new Error(`AI provider answered ${res.status}: ${body.error?.message || "no details"}`), { status: 502 });
+  const { dailyLimit: _, ...next } = used;
+  await writeJSON("ai-usage", {
+    ...next,
+    replies: next.replies + 1,
+    monthReplies: next.monthReplies + 1,
+    inputTokens: next.inputTokens + (body.usage?.prompt_tokens ?? 0),
+    outputTokens: next.outputTokens + (body.usage?.completion_tokens ?? 0),
+  });
   const text: string = body.choices?.[0]?.message?.content?.trim() || "";
   const m = text.match(/\n?ACTION\s+(\{.*\})\s*$/);
   let action: Action | null = null;

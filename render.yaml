@@ -1,0 +1,26 @@
+# Render Blueprint for the codemod engine (the wallet runs on Vercel, see wallet/README.md).
+# Secrets are marked sync: false: Render asks for them in its dashboard, they are never in git.
+services:
+  - type: web
+    name: 402found-engine
+    runtime: node
+    plan: free
+    rootDir: .
+    buildCommand: npm ci
+    startCommand: npm start -w engine
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: JOB
+        value: migrate
+      - key: NETWORK
+        value: stellar:testnet
+      - key: PRICE
+        value: "0.05"
+      - key: FACILITATOR_URL
+        value: https://www.x402.org/facilitator
+      - key: PAY_TO
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false

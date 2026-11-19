@@ -1,11 +1,53 @@
-/* Receipts workspace. Uses the wallet's tokens from globals.css (light, AntD-style neutrals). */
-.ws { position: fixed; inset: 0; z-index: 5; display: grid; grid-template-columns: 252px minmax(0, 1fr); background: var(--bg); transition: grid-template-columns 0.2s ease; }
+/* Receipts workspace. Porcelain palette: deep ink, cobalt from the glaze, a little gold leaf, serif headings. */
+.ws, .wl {
+  --ink: #161b33;
+  --sub: #6a7089;
+  --line: #e4e7f1;
+  --primary: #2443b5;
+  --primary-soft: #eaeefb;
+  --gold: #a9843f;
+  --gold-soft: #f7f0e1;
+  --serif: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --shadow: 0 10px 30px rgba(28, 40, 110, 0.07);
+}
+.ws h1, .ws .ws-page-h, .ws-step h2, .ws-guide-sell h2, .wl h1 { font-family: var(--serif); font-weight: 500; letter-spacing: -0.01em; }
+.ws-eyebrow, .ws-sec { color: var(--gold) !important; }
+
+/* sajin (洒金): fine gold flecks on cobalt, like gold-flecked paper; each fleck a small sum, a person on the chain */
+.ws-btn.main, .ws-send, .wl-form button, .wl-go, .ws-intro-card .ws-btn.main {
+  background-color: var(--primary) !important;
+  background-image: radial-gradient(circle at 18% 28%, rgba(236, 205, 128, 0.95) 0 0.9px, transparent 1.4px), radial-gradient(circle at 72% 64%, rgba(236, 205, 128, 0.75) 0 1.1px, transparent 1.6px), radial-gradient(circle at 46% 84%, rgba(236, 205, 128, 0.6) 0 0.7px, transparent 1.2px), radial-gradient(circle at 88% 12%, rgba(236, 205, 128, 0.8) 0 1.4px, transparent 2px);
+  background-size: 37px 29px, 61px 43px, 29px 53px, 97px 71px;
+}
+
+/* white aurora behind heavy porcelain: slow, faint light, never a dark area */
+.aurora { position: relative; isolation: isolate; background: #fbfbfd; }
+.aurora::before, .aurora::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; filter: blur(60px); opacity: 0.9; }
+.aurora::before {
+  background:
+    radial-gradient(38% 32% at 18% 22%, rgba(54, 92, 214, 0.16), transparent 70%),
+    radial-gradient(30% 26% at 82% 16%, rgba(214, 178, 104, 0.18), transparent 70%),
+    radial-gradient(46% 40% at 60% 78%, rgba(120, 150, 235, 0.12), transparent 70%);
+  animation: aurora-a 22s ease-in-out infinite alternate;
+}
+.aurora::after {
+  background:
+    radial-gradient(34% 30% at 70% 40%, rgba(255, 255, 255, 0.95), transparent 70%),
+    radial-gradient(28% 24% at 30% 70%, rgba(190, 205, 250, 0.16), transparent 70%);
+  animation: aurora-b 30s ease-in-out infinite alternate;
+}
+@keyframes aurora-a { from { transform: translate3d(-3%, -2%, 0) rotate(0deg); } to { transform: translate3d(4%, 3%, 0) rotate(6deg); } }
+@keyframes aurora-b { from { transform: translate3d(3%, 2%, 0); } to { transform: translate3d(-4%, -3%, 0); } }
+@media (prefers-reduced-motion: reduce) { .aurora::before, .aurora::after { animation: none; } }
+
+.ws { position: fixed; inset: 0; z-index: 5; display: grid; grid-template-columns: 252px minmax(0, 1fr); background: radial-gradient(40% 35% at 20% 10%, rgba(54, 92, 214, 0.07), transparent 70%), radial-gradient(35% 30% at 90% 5%, rgba(214, 178, 104, 0.09), transparent 70%), #fbfbfd; transition: grid-template-columns 0.2s ease; }
 .ws.ws-railed { grid-template-columns: 60px minmax(0, 1fr); }
 .ws button { color: inherit; }
 
 /* side nav */
-.ws-side { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-right: 1px solid var(--line); background: #fafbfe; }
+.ws-side { display: flex; flex-direction: column; min-height: 0; overflow: hidden; border-right: 1px solid var(--line); background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); }
 .ws-brand { display: flex; align-items: center; gap: 10px; padding: 16px 12px 12px 14px; }
+.ws-mark-img { flex: none; width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 3px 6px rgba(28, 40, 110, 0.18)); }
 .ws-mark { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 9px; background: var(--primary); color: #fff; font-weight: 700; font-size: 14px; }
 .ws-brand-t { flex: 1; min-width: 0; }
 .ws-brand-t b { display: block; font-size: 16px; }
@@ -35,6 +77,8 @@
 .ws-seal { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 13px; font-weight: 600; }
 .ws-who b { display: block; font-size: 13.5px; }
 .ws-who small { display: block; color: var(--sub); font-size: 11.5px; }
+.ws-theme { margin-left: auto; flex: none; }
+.ws-railed .ws-theme { display: none; }
 .ws-railed .ws-brand { flex-direction: column; padding: 14px 0 8px; }
 .ws-railed .ws-brand-t, .ws-railed .ws-new span, .ws-railed .ws-nav span, .ws-railed .ws-group, .ws-railed .ws-recent, .ws-railed .ws-who { display: none; }
 .ws-railed .ws-scroll { padding: 6px 8px; }
@@ -60,7 +104,7 @@
 .ws-flow { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
 
 /* empty state: the engraving, inked in the brand colour, fading out toward the top */
-.ws-hero-wrap { position: relative; flex: 1; display: flex; overflow: hidden; }
+.ws-hero-wrap { position: relative; flex: 1; display: flex; min-height: 0; overflow-x: hidden; overflow-y: auto; }
 .ws-scene { position: absolute; left: 0; right: 0; bottom: 0; height: min(60vh, 50vw); background: var(--primary); opacity: 0.22; pointer-events: none;
   -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.35) 40%, #000 72%), url('/ws-scene.webp');
   mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.35) 40%, #000 72%), url('/ws-scene.webp');
@@ -68,7 +112,7 @@
   -webkit-mask-position: center, center bottom; mask-position: center, center bottom;
   -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
   -webkit-mask-composite: source-in; mask-composite: intersect; }
-.ws-hero { position: relative; z-index: 1; width: min(720px, 92%); margin: auto; padding: 24px 0 80px; }
+.ws-hero { z-index: 1; position: relative; width: min(720px, 92%); margin: auto; padding: 24px 0 80px; }
 .ws-hero h1 { margin: 8px 0 6px; font-size: clamp(28px, 3vw, 36px); letter-spacing: -0.02em; }
 .ws-lede { margin: 0 0 20px; color: #4a5068; font-size: 15.5px; }
 .ws-lede b { color: var(--ink); }
@@ -150,11 +194,99 @@
 .ws-set code { font: 13px var(--mono); }
 .ws-set-now { color: var(--ink) !important; font-weight: 500; }
 .ws-fine { color: var(--sub) !important; font-size: 13px; }
+.ws-unlock { display: flex; gap: 8px; }
+.ws-unlock input { flex: 1; min-width: 0; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; font: inherit; font-size: 15px; }
+.ws-unlock input:focus { outline: 0; border-color: var(--primary); }
+
+
+/* mobile title bar (hidden on wide screens) and "Ask about this" on function pages */
+.ws-mbar { display: none; }
+.ws-pagewrap { position: relative; }
+.ws-askthis { position: fixed; right: 22px; bottom: 22px; z-index: 20; display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); box-shadow: var(--shadow); color: var(--ink); font-size: 14px; font-weight: 600; }
+.ws-askthis svg { color: var(--primary); }
+.ws-askthis:hover { border-color: var(--primary); text-decoration: none; }
+.ws-drawer-x { display: none; }
+
+/* first-visit note, in plain words */
+.ws-welcome { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; padding: 12px 14px; border: 1px solid rgba(169, 132, 63, 0.28); border-radius: 14px; background: rgba(255, 255, 255, 0.72); backdrop-filter: blur(6px); font-size: 14px; }
+.ws-welcome p { flex: 1; margin: 0; color: #4a5068; line-height: 1.55; }
+.ws-welcome p b { color: var(--ink); }
+.ws-welcome a { flex: none; font-weight: 600; white-space: nowrap; }
+.ws-welcome button { display: grid; place-items: center; flex: none; width: 26px; height: 26px; border: 0; border-radius: 7px; background: transparent; color: var(--sub); }
+.ws-welcome-i { flex: none; width: 44px; height: 44px; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(28, 40, 110, 0.15)); }
+.ws-hero-star { position: absolute; top: 4px; right: -8px; width: 112px; height: auto; filter: drop-shadow(0 10px 18px rgba(28, 40, 110, 0.16)); }
+.ws-hero-street { position: absolute; right: 3%; bottom: 2%; width: min(420px, 38vw); height: auto; opacity: 0.95; pointer-events: none; filter: drop-shadow(0 14px 22px rgba(28, 40, 110, 0.12)); }
+.ws-desk-card { position: relative; }
+.ws-desk-art { position: absolute; right: 12px; top: -18px; width: 54px; height: 54px; object-fit: contain; filter: drop-shadow(0 6px 10px rgba(28, 40, 110, 0.16)); pointer-events: none; }
+.ws-ask { position: relative; }
+.ws-ask-art { float: right; width: 46px; height: 64px; object-fit: contain; margin: -4px 0 0 12px; filter: drop-shadow(0 6px 10px rgba(28, 40, 110, 0.16)); }
+
+/* new conversation: a fine flat blue-and-white street along the bottom, fading upward */
+.ws-scene-gold { position: absolute; left: 0; right: 0; bottom: 0; height: min(42vh, 34vw); pointer-events: none; opacity: 0.55;
+  background-image: radial-gradient(circle at 20% 30%, rgba(201, 162, 82, 0.9) 0 1px, transparent 1.6px), radial-gradient(circle at 70% 60%, rgba(201, 162, 82, 0.7) 0 1.3px, transparent 2px), radial-gradient(circle at 40% 85%, rgba(201, 162, 82, 0.8) 0 0.8px, transparent 1.3px);
+  background-size: 61px 53px, 97px 83px, 43px 59px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 70%); mask-image: linear-gradient(to bottom, transparent 0%, #000 70%); }
+.ws-scene-img { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: min(42vh, 34vw); object-fit: cover; object-position: center bottom; mix-blend-mode: multiply; opacity: 0.36; pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%); mask-image: linear-gradient(to bottom, transparent 0%, #000 55%); }
+
+.gold-dust { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
+/* first visit: a light veil and one small card, closed with one tap */
+.ws-intro { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(246, 247, 251, 0.72); backdrop-filter: blur(6px); }
+.ws-intro-card { width: min(420px, 100%); padding: 26px 26px 20px; border: 1px solid var(--line); border-radius: 20px; background: #fff; box-shadow: 0 24px 60px rgba(28, 40, 110, 0.16); text-align: center; }
+.ws-intro-card img { width: 96px; height: auto; margin-bottom: 8px; filter: drop-shadow(0 8px 14px rgba(28, 40, 110, 0.16)); }
+.ws-intro-card h2 { margin: 0 0 8px; font-family: var(--serif); font-weight: 500; font-size: 22px; }
+.ws-intro-card p { margin: 0 0 18px; color: var(--sub); line-height: 1.6; }
+.ws-intro-bar { display: flex; justify-content: center; align-items: center; gap: 16px; }
+.ws-intro-bar a { font-size: 14px; font-weight: 600; }
+
+/* desk: what is going on, under the start cards */
+.ws-desk { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.ws-desk-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 255, 255, 0.92); color: var(--ink); text-align: left; font-size: 14px; }
+.ws-desk-card small { color: var(--sub); font-size: 11.5px; font-weight: 600; letter-spacing: 0.04em; }
+.ws-desk-card > span { color: var(--sub); font-size: 12.5px; }
+.ws-desk-card.ask { border-color: #f5d68a; background: var(--ask-soft); }
+.ws-desk-card.try { background: linear-gradient(135deg, #f3f7ff, #ffffff); }
+a.ws-desk-card:hover, button.ws-desk-card:hover { border-color: var(--primary); text-decoration: none; }
+.ws-desk-card ul { margin: 2px 0 0; padding: 0; list-style: none; }
+.ws-desk-card li button { display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 4px 0; border: 0; background: transparent; font-size: 13.5px; text-align: left; }
+.ws-desk-card li button:hover span:first-child { color: var(--primary); }
+.ws-desk-st { flex: none; font: 12.5px var(--mono); color: var(--paid); }
+.ws-desk-st.blocked, .ws-desk-st.failed, .ws-desk-st.declined { color: var(--block); }
+
+/* guide */
+.ws-guide-lede { margin: -12px 0 22px; color: #4a5068; font-size: 15.5px; }
+.ws-steps { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.ws-step { display: flex; gap: 16px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--card); }
+.ws-step-n { color: var(--gold); font-size: 11.5px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+.ws-step-art { flex: none; width: 76px; height: 76px; object-fit: contain; filter: drop-shadow(0 8px 12px rgba(28, 40, 110, 0.14)); }
+.ws-step { align-items: center; }
+.ws-guide-sell { position: relative; padding-right: 120px !important; }
+.ws-sell-art { position: absolute; right: 22px; bottom: 14px; width: 74px; height: auto; filter: drop-shadow(0 8px 12px rgba(28, 40, 110, 0.14)); }
+.ws-step h2 { margin: 4px 0 6px; font-size: 17px; }
+.ws-step p { margin: 0 0 6px; color: #4a5068; line-height: 1.6; }
+.ws-step small { color: var(--sub); font-size: 12.5px; }
+.ws-guide-sell { margin-top: 18px; padding: 18px 20px; border: 1px solid #cfdcff; border-radius: 16px; background: linear-gradient(135deg, #f3f7ff, #fbfcff); }
+.ws-guide-sell h2 { margin: 0 0 6px; font-size: 17px; }
+.ws-guide-sell p { margin: 0 0 8px; color: #4a5068; line-height: 1.6; }
+.ws-guide-try { grid-template-columns: repeat(3, 1fr); }
+.ws-guide-try a:hover { text-decoration: none; }
+.ws-guide-try b { color: var(--ink); }
+.ws-guide-ask { display: flex; flex-wrap: wrap; gap: 8px; }
+.ws-guide-ask a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--ink); font-size: 13.5px; }
+.ws-guide-ask a:hover { border-color: var(--primary); text-decoration: none; }
+
+/* inside the app area (an iframe): no shell around the page */
+.ws-bare { padding: 22px 22px 40px; }
 
 /* narrow: app area as a bottom drawer; phone: hamburger nav */
 @media (max-width: 1100px) {
   .ws-talk-app, .ws-talk-focus { grid-template-columns: minmax(0, 1fr); }
-  .ws-app { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: 82vh; margin: 0; border-radius: 18px 18px 0 0; }
+  .ws-app { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; height: 82vh; margin: 0; border-radius: 18px 18px 0 0; transform: translateY(100%); transition: transform 0.22s ease; }
+  .ws-drawer-open .ws-app { transform: none; }
+  .ws-drawer-x { display: grid; place-items: center; flex: none; width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--sub); }
+  .ws-controls { display: none; }
+  .ws-talk { grid-template-rows: minmax(0, 1fr); }
 }
 @media (max-width: 800px) {
   .ws, .ws.ws-railed { grid-template-columns: minmax(0, 1fr); }
@@ -162,7 +294,17 @@
   .ws-side-open { transform: none; }
   .ws-fold { display: none; }
   .ws-scrim { position: fixed; inset: 0; z-index: 35; background: rgba(0, 0, 0, 0.3); }
-  .ws-burger { position: absolute; top: 8px; left: 10px; z-index: 5; display: grid; place-items: center; width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; color: #4a5068; }
-  .ws-pagewrap { padding: 52px 16px 60px; }
-  .ws-start { grid-template-columns: 1fr; }
+  .ws-mbar { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 6px; height: 48px; padding: 0 8px; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(8px); }
+  .ws-mbar b { flex: 1; font-size: 15px; text-align: center; }
+  .ws-burger, .ws-mbar-new { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 9px; background: transparent; color: #4a5068; }
+  .ws-main { display: flex; flex-direction: column; }
+  .ws-main > .ws-talk { flex: 1; height: auto; min-height: 0; }
+  .ws-pagewrap { padding: 20px 16px 90px; }
+  .ws-start, .ws-guide-try { grid-template-columns: 1fr; }
+  .ws-askthis { right: 16px; bottom: 16px; }
+  .ws-welcome { flex-wrap: wrap; }
+  .ws-welcome p { flex-basis: calc(100% - 90px); }
+  .ws-hero { padding-top: 16px; }
+  .ws-hero-street { display: none; }
+  .ws-hero-star { width: 64px; top: 0; right: 0; }
 }

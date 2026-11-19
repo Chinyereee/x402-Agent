@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { answer, buy, ledger, readReceipts, sellerBalance } from "@/lib/live.ts";
+import { answer, buy, ledger, readReceipts, sellerBalance, sellersOnline } from "@/lib/live.ts";
 import { readRules } from "@/lib/rules-store.ts";
 
 export const dynamic = "force-dynamic";
+// A paid codemod job takes 10–20 s; the engine may also need to wake up.
+export const maxDuration = 120;
 
 export async function GET() {
   const receipts = await readReceipts();
   const { rules: r, text } = await readRules();
   const drawer = await sellerBalance().catch(() => 0);
-  return NextResponse.json({ receipts, drawer, ledger: ledger(receipts), rules: { monthlyBudget: r.monthlyBudget, capPerPayment: r.capPerPayment, allow: r.allow.map((s) => s.name), text } });
+  return NextResponse.json({ receipts, drawer, sellers: sellersOnline(), ledger: ledger(receipts), rules: { monthlyBudget: r.monthlyBudget, capPerPayment: r.capPerPayment, allow: r.allow.map((s) => s.name), text } });
 }
 
 export async function POST(req: Request) {

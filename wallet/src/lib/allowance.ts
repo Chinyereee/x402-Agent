@@ -3,8 +3,7 @@
 // Stellar itself refuses any top-up over the allowance or after it expires.
 // x402 then pays from the agent's own account, as the standard "exact" scheme requires.
 import "server-only";
-import fs from "node:fs/promises";
-import path from "node:path";
+import { readJSON, writeJSON } from "./kv.ts";
 import { Address, BASE_FEE, Keypair, Networks, Operation, TransactionBuilder, nativeToScVal, rpc, scValToNative } from "@stellar/stellar-sdk";
 
 const env = (k: string) => {
@@ -26,13 +25,11 @@ export const hasOwner = () => !!process.env.OWNER_SECRET;
 
 type Entry = { at: string; kind: "approve" | "revoke" | "topup" | "refused"; amount: number; hash?: string; note?: string };
 type State = { untilLedger: number | null; untilISO: string | null; history: Entry[] };
-const FILE = path.join(process.cwd(), "data", "allowance.json");
 async function readState(): Promise<State> {
-  try { return JSON.parse(await fs.readFile(FILE, "utf8")); } catch { return { untilLedger: null, untilISO: null, history: [] }; }
+  return (await readJSON<State>("allowance")) ?? { untilLedger: null, untilISO: null, history: [] };
 }
 async function writeState(s: State) {
-  await fs.mkdir(path.dirname(FILE), { recursive: true });
-  await fs.writeFile(FILE, JSON.stringify(s, null, 2));
+  await writeJSON("allowance", s);
 }
 
 async function invoke(kp: Keypair, fn: string, args: ReturnType<typeof addr>[]) {

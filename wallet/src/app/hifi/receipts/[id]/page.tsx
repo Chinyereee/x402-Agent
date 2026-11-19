@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { WsLink as Link } from "@/components/WsLink.tsx";
 import { notFound } from "next/navigation";
 import { Decide } from "@/components/Decide.tsx";
 import { Pill } from "@/components/Pill.tsx";

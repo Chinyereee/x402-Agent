@@ -1,21 +1,29 @@
-import { aiStatus } from "@/lib/ws-ask.ts";
+import { aiStatus, aiUsage } from "@/lib/ws-ask.ts";
+import { Unlock } from "@/components/Unlock.tsx";
 
 export const dynamic = "force-dynamic";
 
 // Settings (function page): where the assistant gets connected.
-export default function Settings() {
+export default async function Settings() {
   const ai = aiStatus();
+  const used = await aiUsage();
   return (
     <div className="ws-page">
       <p className="ws-eyebrow">Settings</p>
       <h1 className="ws-page-h">How the workspace works for you</h1>
+      <Unlock />
       <section className="ws-set">
         <h2>Assistant</h2>
         <p className="ws-set-now">
           <i className={`ws-tool-dot ${ai.configured ? "ok" : "warn"}`} /> {ai.configured ? `Connected: ${ai.model} at ${ai.host}` : "Not connected. The workspace answers simple questions from your receipts."}
         </p>
+        {ai.configured && (
+          <p className="ws-set-now">
+            Today {used.replies} of {used.dailyLimit} replies · this month {used.monthReplies} replies, {(used.inputTokens + used.outputTokens).toLocaleString("en-US")} tokens
+          </p>
+        )}
         <p>A Claude key works as is, and so does any service that speaks the OpenAI chat format. Add these to <code>wallet/.env.local</code> and restart:</p>
-        <pre>{`AI_BASE_URL=https://api.anthropic.com/v1\nAI_API_KEY=your-anthropic-key\nAI_MODEL=claude-sonnet-5-5`}</pre>
+        <pre>{`AI_BASE_URL=https://api.anthropic.com/v1\nAI_API_KEY=your-anthropic-key\nAI_MODEL=claude-sonnet-5-5\nAI_DAILY_LIMIT=50      # replies a day, then simple answers without AI\nAI_MAX_TOKENS=600      # longest reply`}</pre>
         <p className="ws-fine">The key stays on the server. The assistant reads your rules and receipts and explains them. It never pays or changes rules by itself: every action comes back to you as a card.</p>
       </section>
     </div>

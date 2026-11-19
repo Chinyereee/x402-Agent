@@ -33,6 +33,21 @@ npm run dev    # http://localhost:3040
 
 More in [`wallet/README.md`](wallet/README.md).
 
+### Pay the engine from your own testnet wallet
+
+The engine takes payment from any x402 buyer, not only our wallet. To check it with your own key (test money only):
+
+1. Create a Stellar testnet account and fund it with Friendbot, then add a USDC trustline (both in [Stellar Lab](https://lab.stellar.org/), network Testnet).
+2. Get free test USDC at [faucet.circle.com](https://faucet.circle.com) (Stellar Testnet).
+3. Run the test payer against the engine. The engine can only open pull requests on repositories its token may push to, so use our demo repository:
+
+```bash
+npm install
+BUYER_SECRET=S... ENGINE_URL=<engine URL> npx tsx engine/scripts/pay.ts https://github.com/haodaz/ethers-v5-demo
+```
+
+It prints the pull request and the Stellar transaction. It pays at most 0.05 USDC (`MAX_AMOUNT`), and only to the address in `EXPECT_PAY_TO` if you set it.
+
 ## Payment requirements (x402 v2)
 
 The engine answers an unpaid `POST /api/v1/migrate` with `402` and a `PAYMENT-REQUIRED` header. Decoded:

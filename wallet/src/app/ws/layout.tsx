@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { WsProvider, useWs } from "./context.tsx";
 import { Icon, I } from "./icons.tsx";
+import { ThemeToggle } from "@/components/ThemeToggle.tsx";
 import "./ws.css";
 
 /*
@@ -17,7 +18,20 @@ const NAV = [
   { href: "/ws/home", label: "Overview", d: I.home },
   { href: "/ws/rules", label: "Rules", d: I.rules },
   { href: "/ws/pay", label: "Pay a service", d: I.pay },
+  { href: "/ws/job", label: "Codemod job", d: I.job },
+  { href: "/ws/guide", label: "How it works", d: I.guide },
   { href: "/ws/settings", label: "Settings", d: I.gear },
+];
+
+// Each function page can hand its context to a new conversation ("Ask about this").
+const ASK: { at: RegExp; title: string; q: (path: string) => string }[] = [
+  { at: /^\/ws\/home$/, title: "Overview", q: () => "Explain my overview: what did my agent pay for, and how much is left?" },
+  { at: /^\/ws\/rules$/, title: "Rules", q: () => "Help me check my rules. Are they safe for my agent?" },
+  { at: /^\/ws\/pay$/, title: "Pay a service", q: () => "What can my agent buy here, and what would my rules allow?" },
+  { at: /^\/ws\/job$/, title: "Codemod job", q: () => "Explain in plain words what happens in the codemod job." },
+  { at: /^\/ws\/receipts\//, title: "Receipt", q: (p) => `Explain receipt ${p.split("/").pop()} in plain words.` },
+  { at: /^\/ws\/guide$/, title: "How it works", q: () => "Explain how this works with an everyday example." },
+  { at: /^\/ws\/settings$/, title: "Settings", q: () => "How do I connect the assistant?" },
 ];
 
 function Shell({ children }: { children: React.ReactNode }) {
@@ -27,7 +41,10 @@ function Shell({ children }: { children: React.ReactNode }) {
   const [fold, setFold] = useState(false);
   const [narrow, setNarrow] = useState(false);
   const [mobile, setMobile] = useState(false);
+  // Shown inside the app area (an iframe): just the page, no second shell around it.
+  const [embedded, setEmbedded] = useState(false);
   useEffect(() => {
+    setEmbedded(window.self !== window.top);
     try {
       setFold(localStorage.getItem("ws-fold") === "1");
     } catch {}
@@ -39,6 +56,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   useEffect(() => setMobile(false), [path]);
   // Folds by itself while the app area is open on a laptop-size screen.
   const railed = fold || (appOpen && narrow && path === "/ws");
+  const page = ASK.find((a) => a.at.test(path));
   const toggle = () => {
     setFold(!railed);
     try {
@@ -50,11 +68,12 @@ function Shell({ children }: { children: React.ReactNode }) {
     router.push(id ? `/ws?c=${id}` : "/ws");
   };
 
+  if (embedded) return <div className="ws-bare">{children}</div>;
   return (
     <div className={`ws${railed ? " ws-railed" : ""}`}>
       <aside className={`ws-side${mobile ? " ws-side-open" : ""}`} aria-label="Navigation">
         <div className="ws-brand">
-          <span className="ws-mark">R</span>
+          <img className="ws-mark-img" src="/porcelain/star2.webp" alt="" aria-hidden="true" />
           <span className="ws-brand-t">
             <b>Receipts</b>
             <small>An allowance, not your wallet</small>
@@ -97,15 +116,31 @@ function Shell({ children }: { children: React.ReactNode }) {
             <b>Lina</b>
             <small>Stellar testnet · test money</small>
           </span>
+          <ThemeToggle className="ws-theme" />
         </div>
       </aside>
       {mobile && <div className="ws-scrim" onClick={() => setMobile(false)} />}
       <div className="ws-main">
-        <button type="button" className="ws-burger" onClick={() => setMobile(true)} aria-label="Open navigation">
-          <Icon d={I.menu} />
-        </button>
+        <div className="ws-mbar">
+          <button type="button" className="ws-burger" onClick={() => setMobile(true)} aria-label="Open navigation">
+            <Icon d={I.menu} />
+          </button>
+          <b>{page?.title ?? "Assistant"}</b>
+          <Link href="/ws" className="ws-mbar-new" aria-label="New conversation" onClick={() => setCurrent(null)}>
+            <Icon d={I.new} size={16} />
+          </Link>
+        </div>
         {/* the conversation fills the column; function pages get a centred page width */}
-        {path === "/ws" ? children : <div className="ws-pagewrap">{children}</div>}
+        {path === "/ws" ? children : (
+          <div className="ws-pagewrap">
+            {children}
+            {page && (
+              <Link className="ws-askthis" href={`/ws?ask=${encodeURIComponent(page.q(path))}`} onClick={() => setCurrent(null)}>
+                <Icon d={I.spark} size={15} /> Ask about this
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

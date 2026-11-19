@@ -25,6 +25,15 @@ For now the seller is the workshop kit's paid API (github.com/KoxyG/x402-stellar
 
 Setup: create `wallet/.env.local` (never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_USDC_CONTRACT`, `WALLET_EXPLORER_URL`, `SERVICE_BASE_URL`, `SERVICE_NAME`, `SERVICE_PAYTO`. Receipts are stored in `wallet/data/` (git-ignored).
 
+## Online demo (Vercel + Render + Supabase)
+
+- **Engine on Render**: the Blueprint in [`render.yaml`](../render.yaml). Render asks for `PAY_TO` and `GITHUB_TOKEN`; the free plan sleeps when idle, so the first job after a while takes longer.
+- **Wallet on Vercel**: import the repo with Root Directory `wallet`. Add the same variables as `.env.local`, with `ENGINE_BASE_URL` set to the Render URL, plus:
+  - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: receipts, rules and allowance history live in the `wallet_state` table ([`supabase/schema.sql`](supabase/schema.sql)), because Vercel's disk does not persist. Without them the wallet uses `wallet/data/` as before.
+  - `DEMO_CODE`: anyone can look around; spending test money, opening a pull request, changing rules or asking the assistant needs this code (Settings → Demo code). Without it, everything is open (local dev).
+- Leave `SERVICE_BASE_URL` out online: the workshop kit runs only on a laptop, so its items are hidden.
+- `node --env-file=.env.local scripts/push-state.mjs` copies the laptop's history into Supabase once.
+
 ## Rules in force, Home and the product page
 
 - `/hifi/rules`: the owner's plain-words rules. Confirming saves them (`wallet/data/rules.json`); every live payment is checked against them. Anything not understood is listed and nothing is saved.
