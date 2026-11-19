@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
-import express, { type Express } from 'express';
+import { fileURLToPath } from 'node:url';
+import express, { type Express, type NextFunction, type Request, type Response } from 'express';
 import { paymentMiddleware, x402ResourceServer } from '@x402/express';
 import type { FacilitatorClient } from '@x402/core/server';
 import { ExactStellarScheme } from '@x402/stellar/exact/server';
@@ -115,8 +116,7 @@ export function createApp({ config, facilitator, github, runJob }: AppDeps): Exp
   app.get('/', (_req, res) => {
     res.type('html').send(storefront(config, MIGRATE_PATH));
   });
-  app.use('/assets', express.static(new URL('../public', import.meta.url).pathname, { maxAge: '7d' }));
-
+    app.use('/assets', express.static(fileURLToPath(new URL('../public', import.meta.url)), { maxAge: '7d' }));
   app.get('/health', (_req, res) => {
     res.json({ ok: true });
   });
@@ -194,6 +194,16 @@ export function createApp({ config, facilitator, github, runJob }: AppDeps): Exp
       }
       res.status(500).json({ status: 'failed', error: (err as Error).message });
     }
+  });
+
+    // Last in the chain: any error becomes a short JSON answer. Express's default page
+  // prints the stack trace and the server's file paths.
+  app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: NextFunction) => {
+    const status = err.status && err.status >= 400 && err.status < 500 ? err.status : 500;
+    res.status(status).json({
+      status: 'rejected',
+      error: status === 413 ? 'too_large' : status < 500 ? 'invalid_request' : 'server_error',
+    });
   });
 
   return app;
