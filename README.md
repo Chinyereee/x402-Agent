@@ -26,10 +26,10 @@ npm test       # rules engine tests, no network
 npm run dev    # http://localhost:3040
 ```
 
-1. Create `wallet/.env.local` (git-ignored, never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_USDC_CONTRACT`, `WALLET_EXPLORER_URL`, and the seller: `SERVICE_BASE_URL` (the engine, e.g. `http://localhost:4041`), `SERVICE_NAME`, `SERVICE_PAYTO` (the engine's pay-to address).
+1. Create `wallet/.env.local` (git-ignored, never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_HORIZON_URL`, `WALLET_USDC_CONTRACT`, `WALLET_USDC_ISSUER`, `WALLET_EXPLORER_URL`, and the engine: `ENGINE_BASE_URL` (e.g. `http://localhost:4041`), `ENGINE_PAYTO` (the engine's pay-to address), `ENGINE_TEST_REPO` (the demo repository). Optional: `OWNER_SECRET` for on-chain limits, `AI_*` for the assistant (see `wallet/README.md`).
 2. Optional on-chain limits: `node scripts/setup-owner.mjs 0.10` creates the owner wallet and leaves the agent a 0.10 USDC float.
-3. Open `/hifi/rules`, write the rules in plain words and confirm them.
-4. Open `/hifi/live` and run a job. The wallet checks the rules, pays the 402, and keeps a receipt with the pull request and transaction links (`/hifi`).
+3. Open `/ws/rules`, write the rules in plain words and confirm them.
+4. Open `/ws/job` and press “Run the codemod job”. The wallet checks the rules, pays the 402, and keeps a receipt with the pull request and transaction links (`/ws/home`).
 
 More in [`wallet/README.md`](wallet/README.md).
 

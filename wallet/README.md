@@ -21,18 +21,33 @@ Pages: `/` is the lo-fi wireframe board (the same screens with the flow between 
 
 Real x402 payments on Stellar testnet: the agent reads the price out of the 402, the wallet checks the owner's rules in code (`src/lib/rules.ts`), and only then signs, at most the quoted amount to the quoted address. A payment over the cap waits as "Needs you" until the owner allows it once. Every receipt links to the transaction on stellar.expert; signed-but-unsettled payments count as pending against the allowance.
 
-For now the seller is the workshop kit's paid API (github.com/KoxyG/x402-stellar-empower-Her, run locally on port 4021). Switching to the codemod engine means changing `SERVICE_BASE_URL`, `SERVICE_NAME` and `SERVICE_PAYTO`.
+Two sellers: the codemod engine (`ENGINE_BASE_URL`, `ENGINE_PAYTO`, `ENGINE_TEST_REPO`), and, on a laptop only, the workshop kit's paid API (github.com/KoxyG/x402-stellar-empower-Her on port 4021: `SERVICE_BASE_URL`, `SERVICE_NAME`, `SERVICE_PAYTO`).
 
-Setup: create `wallet/.env.local` (never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_USDC_CONTRACT`, `WALLET_EXPLORER_URL`, `SERVICE_BASE_URL`, `SERVICE_NAME`, `SERVICE_PAYTO`. Receipts are stored in `wallet/data/` (git-ignored).
+Setup: create `wallet/.env.local` (never commit it) with `WALLET_AGENT_SECRET`, `WALLET_NETWORK=stellar:testnet`, `WALLET_RPC_URL`, `WALLET_HORIZON_URL`, `WALLET_USDC_CONTRACT`, `WALLET_USDC_ISSUER`, `WALLET_EXPLORER_URL`, and the sellers above. Receipts are stored in `wallet/data/` (git-ignored), or in Supabase online.
 
 ## Online demo (Vercel + Render + Supabase)
 
 - **Engine on Render**: the Blueprint in [`render.yaml`](../render.yaml). Render asks for `PAY_TO` and `GITHUB_TOKEN`; the free plan sleeps when idle, so the first job after a while takes longer.
 - **Wallet on Vercel**: import the repo with Root Directory `wallet`. Add the same variables as `.env.local`, with `ENGINE_BASE_URL` set to the Render URL, plus:
   - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: receipts, rules and allowance history live in the `wallet_state` table ([`supabase/schema.sql`](supabase/schema.sql)), because Vercel's disk does not persist. Without them the wallet uses `wallet/data/` as before.
+  - `AI_BASE_URL`, `AI_API_KEY`, `AI_MODEL` for the assistant (see below).
   - `DEMO_CODE`: anyone can look around; spending test money, opening a pull request, changing rules or asking the assistant needs this code (Settings → Demo code). Without it, everything is open (local dev).
 - Leave `SERVICE_BASE_URL` out online: the workshop kit runs only on a laptop, so its items are hidden.
 - `node --env-file=.env.local scripts/push-state.mjs` copies the laptop's history into Supabase once.
+
+## The assistant (`/ws`)
+
+The workspace assistant explains rules and receipts in plain words and proposes actions as cards; it never pays or changes rules by itself. Any OpenAI-format chat endpoint works; we use Claude:
+
+```
+AI_BASE_URL=https://api.anthropic.com/v1
+AI_API_KEY=...            # a key from a separate, prepaid account with auto-reload off
+AI_MODEL=claude-sonnet-5-5
+AI_DAILY_LIMIT=50         # optional: replies a day, then simple answers without AI
+AI_MAX_TOKENS=600         # optional: longest reply
+```
+
+Spending stays capped three ways: the prepaid balance on the provider account (auto-reload off), the daily reply cap in the app, and, online, the demo code. No model sits in the payment path. Settings shows today's and this month's replies and tokens. Without these variables the workspace still answers simple questions from the receipts.
 
 ## Rules in force, Home and the product page
 
