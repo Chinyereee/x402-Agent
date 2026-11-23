@@ -16,7 +16,7 @@ This README is the shared contract between the two modules.
 ## Demo
 
 - Demo video: https://youtu.be/1BqJvxQohkI
-- Live demo: coming soon (engine on Render, wallet on Vercel)
+- Live demo: the wallet at https://402found-wallet.vercel.app (buyer) and the engine at https://four02found-engine.onrender.com (seller). Anyone can look around; paying, opening a pull request or changing rules needs the demo code given in our submission form.
 - Everything runs on Stellar testnet with test money. Every payment in the video has a real transaction and a real pull request.
 
 ## Run it
