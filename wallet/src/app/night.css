@@ -95,3 +95,19 @@ html[data-theme="dark"] .built-on-stellar .bos-dark { display: inline; }
 .theme-toggle:hover { color: var(--ink, #161b33); border-color: var(--primary, #2443b5); }
 
 html[data-theme="dark"] .ws-seal { background: #e8ecfb; color: #0a1030; }
+
+/* Rule chips and plain buttons: glass with a fine gold edge, readable on the night sky. */
+html[data-theme="dark"] .chip {
+  color: #f3dfa8;
+  background: linear-gradient(135deg, rgba(217, 184, 108, 0.16), rgba(111, 134, 255, 0.12));
+  border: 1px solid rgba(217, 184, 108, 0.38);
+  box-shadow: 0 0 14px rgba(217, 184, 108, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+html[data-theme="dark"] .btn.ghost {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(217, 184, 108, 0.4);
+  color: #f3dfa8;
+}
+html[data-theme="dark"] .btn.ghost:hover { background: rgba(217, 184, 108, 0.12); }
+html[data-theme="dark"] textarea { background: rgba(255, 255, 255, 0.04); }
+html[data-theme="dark"] pre.code { background: rgba(4, 7, 22, 0.7); color: #cfe0ff; }
