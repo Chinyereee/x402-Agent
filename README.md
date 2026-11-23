@@ -15,7 +15,7 @@ This README is the shared contract between the two modules.
 
 ## Demo
 
-- Demo video: coming soon
+- Demo video: https://youtu.be/1BqJvxQohkI
 - Live demo: coming soon (engine on Render, wallet on Vercel)
 - Everything runs on Stellar testnet with test money. Every payment in the video has a real transaction and a real pull request.
 
