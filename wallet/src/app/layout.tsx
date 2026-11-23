@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Nav } from "@/components/Nav.tsx";
 import { THEME_SCRIPT } from "@/components/ThemeToggle.tsx";
+import { FallingGold } from "@/components/FallingGold.tsx";
 import "./globals.css";
 import "./night.css";
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Nav />
         <main>{children}</main>
+        <FallingGold />
       </body>
     </html>
   );
