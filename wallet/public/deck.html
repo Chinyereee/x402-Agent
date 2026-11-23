@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>402 Found · Demo deck</title>
+<link rel="icon" href="/porcelain/star.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!--
+  402 Found demo deck for the EmpowerHer in-house demo.
+  1600×900 slides scaled to the window. Keys: → / Space next, ← back, N speaker notes, F full screen.
+  Every link opens in a new tab so the deck stays where it was.
+-->
+<style>
+  :root {
+    --bg: #FAF8F3; --bg2: #EEF1FB; --ink: #1E2235; --soft: #4A5168; --mute: #7A8096;
+    --blue: #2440B3; --blue-soft: #E3E8FA; --gold: #9A6A1C; --gold-soft: #FBF1DF;
+    --green: #2E7D32; --green-soft: #E8F4E6; --line: #E2E4EC; --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #E9E6DE; font-family: Inter, Arial, sans-serif; color: var(--ink); }
+  body { overflow: hidden; }
+  #stage { position: absolute; left: 50%; top: 50%; width: 1600px; height: 900px; transform-origin: center center; }
+  .slide { position: absolute; inset: 0; background: var(--bg); padding: 88px 104px; display: none; flex-direction: column; overflow: hidden; border-radius: 6px; box-shadow: 0 20px 60px rgba(30,34,53,.12); }
+  .slide.on { display: flex; animation: in .35s ease both; }
+  @keyframes in { from { opacity: 0; transform: translateY(8px); } }
+  .alt { background: var(--bg2); }
+  .eyebrow { font-size: 20px; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 18px; }
+  h1 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 76px; line-height: 1.08; }
+  h2 { font-family: Fraunces, Georgia, serif; font-weight: 600; font-size: 54px; line-height: 1.12; margin-bottom: 36px; }
+  h3 { font-size: 26px; font-weight: 600; margin-bottom: 10px; }
+  p, li { font-size: 24px; line-height: 1.45; color: var(--soft); }
+  a { color: var(--blue); text-decoration: none; border-bottom: 2px solid rgba(36,64,179,.25); }
+  a:hover { border-bottom-color: var(--blue); }
+  .row { display: flex; gap: 32px; }
+  .grow { flex: 1; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 32px; }
+  .pill { display: inline-block; padding: 8px 18px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 22px; font-weight: 600; margin: 0 10px 10px 0; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 12px; background: var(--blue); color: #F6F7FD; font-size: 22px; font-weight: 600; border: 0; }
+  .btn:hover { background: #1B3290; }
+  .btn.ghost { background: var(--card); color: var(--blue); border: 1px solid #C9D2F2; }
+  .btns { display: flex; flex-wrap: wrap; gap: 14px; }
+  .art { border-radius: 22px; object-fit: cover; }
+  .shot { width: 100%; border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(30,34,53,.10); object-fit: contain; background: #fff; }
+  .foot { position: absolute; left: 104px; right: 104px; bottom: 36px; display: flex; justify-content: space-between; font-size: 18px; color: var(--mute); }
+  .big { font-family: Fraunces, Georgia, serif; font-size: 40px; line-height: 1.25; color: var(--ink); }
+  .flow { display: flex; align-items: stretch; gap: 10px; margin-top: 12px; }
+  .step { flex: 1; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 12px; text-align: center; }
+  .step b { display: block; font-size: 24px; }
+  .step span { display: block; font-size: 18px; color: var(--mute); margin-top: 6px; }
+  .step.k { background: var(--gold-soft); border-color: #EDD3A4; }
+  .step.g { background: var(--green-soft); border-color: #C9E2C3; }
+  .arrow { align-self: center; color: #A2A8BC; font-size: 26px; }
+  .num { width: 44px; height: 44px; border-radius: 50%; background: var(--blue); color: #fff; font-weight: 600; font-size: 22px; display: flex; align-items: center; justify-content: center; flex: none; }
+  .demo li { list-style: none; display: flex; gap: 18px; align-items: center; margin-bottom: 18px; }
+  .code { font-family: ui-monospace, Menlo, monospace; background: var(--gold-soft); color: #6B4A12; padding: 4px 12px; border-radius: 8px; font-size: 24px; }
+  .layer { border-top: 6px solid var(--blue); }
+  .layer.g { border-top-color: var(--green); } .layer.k { border-top-color: var(--gold); }
+  .notice { font-size: 16px; color: var(--mute); line-height: 1.4; }
+  /* chrome */
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 10px; padding: 10px; font: 14px Inter, sans-serif; color: #6A6F80; }
+  #bar button { border: 1px solid #CFCBC0; background: #F7F5EF; border-radius: 8px; padding: 6px 12px; font: inherit; color: var(--ink); cursor: pointer; }
+  #notes { position: fixed; right: 16px; bottom: 56px; width: min(520px, 92vw); max-height: 45vh; overflow: auto; background: #FFFDF8; border: 1px solid #DDD6C6; border-radius: 12px; padding: 16px 18px; font: 16px/1.5 Inter, sans-serif; color: var(--ink); box-shadow: 0 10px 30px rgba(0,0,0,.12); display: none; }
+  #notes.on { display: block; }
+  aside { display: none; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+<!-- 1 · Cover -->
+<section class="slide">
+  <div class="row grow" style="align-items:center">
+    <div style="width:880px">
+      <div class="eyebrow">402 Found · EmpowerHer x Stellar</div>
+      <h1 style="font-size:54px;white-space:nowrap">Pocket money for your AI agent.<br>A shop it can pay.</h1>
+      <p style="margin:28px 0 36px;font-size:26px">Agents pay per call over x402 on Stellar, inside rules their owners write once.</p>
+      <div class="btns">
+        <a class="btn" href="https://402found-wallet.vercel.app/ws/home" target="_blank">Try it live</a>
+        <a class="btn ghost" href="https://youtu.be/1BqJvxQohkI" target="_blank">Watch the video</a>
+        <a class="btn ghost" href="https://github.com/Chinyereee/x402-Agent" target="_blank">Code</a>
+      </div>
+    </div>
+    <img class="art" src="/deck/i0.jpg" alt="A small porcelain AI helper carries its coin purse to a porcelain shop" style="width:560px;height:315px;margin-left:auto">
+  </div>
+  <div class="foot"><span>Elodie Liu · Chinyere John-Nnah (Nera)</span><span>Stellar testnet · test money</span></div>
+  <aside>Hi everyone, we are team 402 Found: Elodie and me, Nera. Our project gives an AI agent pocket money with house rules, and gives a small online shop a way to get paid by agents. Everything you will see runs on Stellar testnet with test money.</aside>
+</section>
+
+<!-- 2 · Problem -->
+<section class="slide">
+  <div class="eyebrow">The problem</div>
+  <div class="row grow" style="align-items:center">
+    <img class="art" src="/deck/i2.jpg" alt="The AI helper stands outside a shop with empty hands" style="width:760px;height:428px">
+    <div class="grow" style="display:flex;flex-direction:column;gap:28px">
+      <h2 style="margin:0">AI agents are starting to buy things.</h2>
+      <div class="card"><h3>An agent can’t sign up or type a card number.</h3></div>
+      <div class="card" style="background:var(--gold-soft);border-color:#EDD3A4"><h3>Five cents is too small for a card payment.</h3></div>
+      <p>And if you just hand it your card, it’s like giving your whole wallet to someone you met last week.</p>
+    </div>
+  </div>
+  <aside>Agents are starting to pay for things on their own: data, code fixes, small jobs. But an agent can’t create an account or type in a card number, and a five-cent job is too small for card fees. Giving the agent your real card is not safe either.</aside>
+</section>
+
+<!-- 3 · Idea -->
+<section class="slide alt">
+  <div class="eyebrow">Our idea</div>
+  <div class="row grow" style="align-items:center">
+    <div class="grow" style="display:flex;flex-direction:column;gap:24px">
+      <h2 style="margin:0">Pocket money, with house rules.</h2>
+      <p class="big">“$2 a month, at most $0.25 a payment, only these shops.”</p>
+      <div><span class="pill">$2.00 a month</span><span class="pill">at most $0.25 a payment</span><span class="pill">only listed shops</span></div>
+      <p>The owner writes the rules once, in plain words. The wallet turns them into checks in code. Over the limit, the agent stops and asks. Her own money stays in her own wallet.</p>
+      <p><a href="https://402found-wallet.vercel.app/ws/guide" target="_blank">How it works, in four steps →</a></p>
+    </div>
+    <img class="art" src="/deck/i4.jpg" alt="Lina gives the helper a porcelain coin purse and a note of house rules" style="width:720px;height:405px">
+  </div>
+  <aside>What people want is what parents do with a teenager: a little pocket money and a few house rules. The owner writes the rules in one sentence. The wallet reads them once, shows exactly what it will enforce, and then checks every payment in code. There is no AI model in the payment step.</aside>
+</section>
+
+<!-- 4 · Two sides -->
+<section class="slide">
+  <div class="eyebrow">Two sides of one purchase</div>
+  <h2>A wallet that pays, and a shop that gets paid.</h2>
+  <div class="row grow">
+    <div class="grow" style="display:flex;flex-direction:column;gap:24px">
+      <div class="card" style="display:flex;gap:24px;align-items:flex-start;padding:26px 28px">
+        <img src="/porcelain/purse.webp" alt="Porcelain purse" style="width:96px;height:96px;object-fit:contain;flex:none">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">The buyer · Elodie</div>
+          <h3 style="font-size:28px">Receipts wallet</h3>
+          <p>Holds the agent’s test key, enforces the owner’s rules, signs the x402 payment, keeps a receipt for every cent. <a href="https://402found-wallet.vercel.app/ws/home" target="_blank">Open it →</a></p>
+        </div>
+      </div>
+      <div class="card" style="display:flex;gap:24px;align-items:flex-start;padding:26px 28px">
+        <img src="/porcelain/shop.webp" alt="Porcelain shop" style="width:96px;height:96px;object-fit:contain;flex:none">
+        <div>
+          <div class="eyebrow" style="margin-bottom:6px">The shop · Nera</div>
+          <h3 style="font-size:28px">Codemod engine</h3>
+          <p>Upgrades a repository from ethers v5 to v6 and sends it back as a GitHub pull request, for 5 test cents, behind an HTTP 402. <a href="https://four02found-engine.onrender.com/" target="_blank">Open it →</a></p>
+        </div>
+      </div>
+    </div>
+    <img class="art" src="/deck/i5.jpg" alt="Nera repairs glowing code scrolls in her porcelain corner shop" style="width:620px;height:520px">
+  </div>
+  <aside>There are two sides. Elodie built the buyer: the Receipts wallet. I built the shop: the codemod engine. It upgrades old ethers version 5 code to version 6 and delivers it as a pull request. You can open both right now from these links.</aside>
+</section>
+
+<!-- 5 · Flow -->
+<section class="slide alt">
+  <div class="eyebrow">How one purchase works</div>
+  <h2>Price first. Money last.</h2>
+  <div class="flow">
+    <div class="step"><b>Ask</b><span>agent calls the shop</span></div><div class="arrow">→</div>
+    <div class="step k"><b>Price</b><span>HTTP 402, 5¢</span></div><div class="arrow">→</div>
+    <div class="step"><b>Rules</b><span>checked in code</span></div><div class="arrow">→</div>
+    <div class="step"><b>Sign</b><span>exactly 5¢</span></div><div class="arrow">→</div>
+    <div class="step"><b>Work</b><span>pull request</span></div><div class="arrow">→</div>
+    <div class="step g"><b>Settle</b><span>on Stellar</span></div><div class="arrow">→</div>
+    <div class="step"><b>Receipt</b><span>both links</span></div>
+  </div>
+  <div class="row" style="margin-top:44px">
+    <div class="card grow"><h3>Free check first</h3><p>The shop checks it can do the job before it asks for money. If it can’t, you are never asked to pay.</p></div>
+    <div class="card grow"><h3>Paid only on delivery</h3><p>The signature is like a cheque. The shop cashes it only after the pull request is open. A failed job is never charged.</p></div>
+  </div>
+  <p style="margin-top:26px;font-size:20px">Standard: <a href="https://developers.stellar.org/docs/build/agentic-payments/x402" target="_blank">x402 on Stellar</a> · payment details in the <a href="https://github.com/Chinyereee/x402-Agent#payment-requirements-x402-v2" target="_blank">README</a></p>
+  <aside>Here is one purchase. The agent asks the shop. The shop checks the job for free, then answers with a price: HTTP 402, payment required, five cents. The wallet checks the rules. The agent signs for exactly five cents. The shop does the work, opens the pull request, and only then settles the payment on Stellar.</aside>
+</section>
+
+<!-- 6 · Live demo -->
+<section class="slide">
+  <div class="eyebrow">Live demo · click along</div>
+  <h2>Try it yourself.</h2>
+  <div class="row grow">
+    <ol class="demo grow">
+      <li><span class="num">1</span><p><a href="https://402found-wallet.vercel.app/ws/home" target="_blank">Overview</a>: how much is left this month, and every receipt.</p></li>
+      <li><span class="num">2</span><p><a href="https://402found-wallet.vercel.app/ws/rules" target="_blank">Rules</a>: one sentence, and what the wallet enforces.</p></li>
+      <li><span class="num">3</span><p><a href="https://402found-wallet.vercel.app/ws/settings" target="_blank">Settings</a>: enter the demo code <span class="code">402found-judges</span></p></li>
+      <li><span class="num">4</span><p><a href="https://402found-wallet.vercel.app/ws/job" target="_blank">Codemod job</a>: press “Run the codemod job” and watch both sides.</p></li>
+      <li><span class="num">5</span><p>From the receipt, open the pull request and the Stellar transaction.</p></li>
+      <li><span class="num">6</span><p><a href="https://402found-wallet.vercel.app/ws" target="_blank">Assistant</a>: ask “What did my agent buy?”</p></li>
+    </ol>
+    <div class="card" style="width:520px;align-self:flex-start">
+      <h3>The shop’s own front door</h3>
+      <p>What it sells, the price and how to pay, for any agent.</p>
+      <p style="margin-top:12px"><a href="https://four02found-engine.onrender.com/" target="_blank">Open the engine →</a></p>
+      <hr style="border:0;border-top:1px solid var(--line);margin:22px 0">
+      <p style="font-size:20px">Each run spends 5 test cents and opens a real pull request on our demo repo. Looking around is free.</p>
+    </div>
+  </div>
+  <aside>Now the live demo. Open the overview: Lina’s agent has some cents left this month. Open Rules: the sentence, and the numbers the wallet enforces. In Settings, type the demo code 402found-judges. Then open Codemod job and press Run. Left is the wallet, right is my engine. You will see the 402 price, the three rules pass, the signature, the codemod running, the pull request, and the payment settled. Click the pull request and the transaction to show they are real. If the internet is slow, switch to the next slide, which shows the same run.</aside>
+</section>
+
+<!-- 7 · Both sides screenshot -->
+<section class="slide alt">
+  <div class="eyebrow">One purchase, both sides</div>
+  <img class="shot" src="/deck/s1.jpg" alt="The wallet on the left passes all three rules and pays; the engine on the right shows 402, the codemod, the pull request and the settlement" style="height:600px">
+  <p style="margin-top:22px">Real run on Stellar testnet: <a href="https://github.com/haodaz/ethers-v5-demo/pull/9" target="_blank">pull request #9</a> · <a href="https://stellar.expert/explorer/testnet/tx/c01afd07e93275f3f50c0fcd9164eccb28f3165c112cc2014861aabc4d15ba7e" target="_blank">transaction on stellar.expert</a></p>
+  <aside>This is the same run as a screenshot, in case the live demo is slow. Left: the wallet. The price came only after the engine checked the job. All three rules passed, the agent signed for exactly five cents, and it was paid after delivery. Right: every line from my engine, from the 402 to the settlement. Both links at the bottom are real.</aside>
+</section>
+
+<!-- 8 · Over the cap -->
+<section class="slide">
+  <div class="eyebrow">When it costs too much</div>
+  <div class="row grow" style="align-items:center">
+    <img class="shot" src="/deck/s3.jpg" alt="A 50-cent report is over the 25-cent cap: Needs you, with Allow once and Say no" style="width:880px">
+    <div class="grow" style="display:flex;flex-direction:column;gap:22px">
+      <h2 style="margin:0">It stops and asks.</h2>
+      <p>A 50-cent report is over the 25-cent cap. The agent doesn’t pay. The receipt says <b>Needs you</b>: allow once, or say no.</p>
+      <p>Nothing is signed until the owner decides. A shop not on her list is simply blocked.</p>
+    </div>
+  </div>
+  <aside>What if something costs more than the limit? Here the agent tried to buy a 50-cent report. The cap is 25 cents, so it stopped and asked, like a card asking “approve this purchase?”. Nothing is signed until the owner says yes. A shop that is not on the list is blocked outright.</aside>
+</section>
+
+<!-- 9 · Safety -->
+<section class="slide alt">
+  <div class="eyebrow">Safe in layers</div>
+  <h2>Even if one layer fails, the money stays safe.</h2>
+  <div class="row">
+    <div class="card layer grow"><h3>Rules in code</h3><p>Budget, cap per payment and allowed shops are checked in code before any signature. No AI model in the payment step.</p></div>
+    <div class="card layer k grow"><h3>An allowance on Stellar</h3><p>The owner grants a monthly allowance on the USDC contract itself. It ends with the month. Past it, Stellar refuses the refill, even if our app had a bug.</p></div>
+    <div class="card layer g grow"><h3>Paid only on delivery</h3><p>The shop settles only after the pull request is open. A failed or timed-out job is never charged, and retries return the same job.</p></div>
+  </div>
+  <p style="margin-top:30px">See the allowance and its records on <a href="https://402found-wallet.vercel.app/ws/pay" target="_blank">Pay a service</a>.</p>
+  <aside>Safety comes in three layers. One: the rules are checked in code, with no model involved. Two: the allowance also lives on Stellar itself, on the USDC contract, and it expires at the end of the month, so even a bug in our app cannot spend more. Three: my engine only settles after it has delivered the pull request.</aside>
+</section>
+
+<!-- 10 · Built with -->
+<section class="slide">
+  <div class="eyebrow">What we built</div>
+  <h2>Real payments, real pull requests, test money.</h2>
+  <div class="row">
+    <div class="card grow">
+      <h3>Payments</h3>
+      <p>x402 v2 with the official <code>@x402/express</code> and <code>@x402/stellar</code> packages · USDC on Stellar testnet · public x402.org facilitator</p>
+    </div>
+    <div class="card grow">
+      <h3>The codemod</h3>
+      <p>11 transforms, 261 tests, ethers v5 → v6 · <a href="https://github.com/Chinyereee/x402-Agent/blob/main/codemod/HACKATHON.md" target="_blank">what we added in the hackathon</a></p>
+    </div>
+    <div class="card grow">
+      <h3>Online</h3>
+      <p>Wallet on Vercel + Supabase · engine on Render · an assistant that answers in plain words</p>
+    </div>
+  </div>
+  <div class="btns" style="margin-top:40px">
+    <a class="btn" href="https://github.com/Chinyereee/x402-Agent" target="_blank">GitHub repository</a>
+    <a class="btn ghost" href="https://youtu.be/1BqJvxQohkI" target="_blank">Demo video (2:35)</a>
+    <a class="btn ghost" href="https://402found-wallet.vercel.app/ws/guide" target="_blank">Guide for beginners</a>
+  </div>
+  <aside>What we built: real x402 payments with the official packages, USDC on Stellar testnet, and a public facilitator. The codemod has 11 transforms and 261 tests. The wallet runs on Vercel with Supabase, my engine runs on Render, and there is a plain-words assistant. Everything is in the GitHub repository.</aside>
+</section>
+
+<!-- 11 · Thanks -->
+<section class="slide alt">
+  <div class="row grow" style="align-items:center">
+    <div style="width:720px">
+      <div class="eyebrow">Thank you</div>
+      <h1 style="font-size:64px">Every line you saw came from a real payment.</h1>
+      <p style="margin-top:28px;line-height:1.9">
+        Wallet · <a href="https://402found-wallet.vercel.app" target="_blank">402found-wallet.vercel.app</a><br>
+        Engine · <a href="https://four02found-engine.onrender.com" target="_blank">four02found-engine.onrender.com</a><br>
+        Video · <a href="https://youtu.be/1BqJvxQohkI" target="_blank">youtu.be/1BqJvxQohkI</a><br>
+        Code · <a href="https://github.com/Chinyereee/x402-Agent" target="_blank">github.com/Chinyereee/x402-Agent</a><br>
+        Demo code · <span class="code">402found-judges</span>
+      </p>
+      <p style="margin-top:18px">Team 402 Found · Elodie Liu and Chinyere John-Nnah</p>
+    </div>
+    <img class="art" src="/deck/i8.jpg" alt="Nera smiles as a coin drops into a porcelain bowl in her shop" style="width:690px;height:388px;margin-left:auto">
+  </div>
+  <p class="notice" style="position:absolute;left:104px;right:104px;bottom:28px">“Stellar” is a trademark of the Stellar Development Foundation. All rights reserved. This is independent software, not affiliated with, sponsored or endorsed by the Stellar Development Foundation.</p>
+  <aside>Thank you. Every line you saw came from a real payment on Stellar testnet. All the links are here, including the demo code, so you can try it after the session. We are happy to take questions.</aside>
+</section>
+
+</div>
+
+<div id="notes"></div>
+<div id="bar">
+  <button id="prev" aria-label="Previous slide">←</button>
+  <span id="count"></span>
+  <button id="next" aria-label="Next slide">→</button>
+  <button id="nbtn">Notes (N)</button>
+  <button id="fbtn">Full screen (F)</button>
+</div>
+
+<script>
+  const slides = [...document.querySelectorAll('.slide')];
+  const stage = document.getElementById('stage');
+  const notes = document.getElementById('notes');
+  let i = Math.max(0, Math.min(slides.length - 1, (parseInt(location.hash.replace('#', ''), 10) || 1) - 1));
+  function fit() {
+    const s = Math.min(window.innerWidth / 1600, (window.innerHeight - 52) / 900) * 0.98;
+    stage.style.transform = `translate(-50%, calc(-50% - 22px)) scale(${s})`;
+  }
+  function show(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, k) => s.classList.toggle('on', k === i));
+    document.getElementById('count').textContent = `${i + 1} / ${slides.length}`;
+    const a = slides[i].querySelector('aside');
+    notes.textContent = a ? a.textContent.trim() : '';
+    history.replaceState(null, '', `#${i + 1}`);
+  }
+  document.getElementById('prev').onclick = () => show(i - 1);
+  document.getElementById('next').onclick = () => show(i + 1);
+  document.getElementById('nbtn').onclick = () => notes.classList.toggle('on');
+  document.getElementById('fbtn').onclick = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  addEventListener('keydown', (e) => {
+    if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); show(i + 1); }
+    if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); show(i - 1); }
+    if (e.key === 'n' || e.key === 'N') notes.classList.toggle('on');
+    if (e.key === 'f' || e.key === 'F') document.getElementById('fbtn').click();
+    if (e.key === 'Home') show(0);
+    if (e.key === 'End') show(slides.length - 1);
+  });
+  addEventListener('hashchange', () => show((parseInt(location.hash.replace('#', ''), 10) || 1) - 1));
+  addEventListener('resize', fit);
+  fit(); show(i);
+</script>
+</body>
+</html>
