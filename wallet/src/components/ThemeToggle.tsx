@@ -30,4 +30,4 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
 }
 
 // Runs in <head> before paint: the saved choice, else the system setting.
-export const THEME_SCRIPT = `try{var t=localStorage.getItem("theme");if(!t)t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
+export const THEME_SCRIPT = `var t="dark";try{t=localStorage.getItem("theme")||"dark"}catch(e){}document.documentElement.dataset.theme=t;`;
