@@ -248,7 +248,7 @@ export function Split({ repo, rules }: { repo: string; rules: { monthly: number;
               <h2>Codemod engine</h2>
             </div>
           </div>
-          <p className="sp-src">Lines show what the engine returned to the wallet. Live engine events will replace them.</p>
+          <p className="sp-src">Every line comes from this payment, as the engine reported it.</p>
           <div className="sp-log" role="log">
             {!log.length && <p className="sp-dim">$ waiting for a request…</p>}
             {log.map((l, i) => (

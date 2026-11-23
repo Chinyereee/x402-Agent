@@ -11,13 +11,31 @@ Team 402 Found for EmpowerHer: Building the Agent Economy.
 
 The codemod the engine runs lives in [`/codemod`](codemod), with its full git history; [`codemod/HACKATHON.md`](codemod/HACKATHON.md) shows what existed before the hackathon and what we added.
 
-This README is the shared contract between the two modules. 
+This README is the shared contract between the two modules.
+
+## Demo
+
+- Demo video: coming soon
+- Live demo: coming soon (engine on Render, wallet on Vercel)
+- Everything runs on Stellar testnet with test money. Every payment in the video has a real transaction and a real pull request.
 
 ## Run it
 
+Needs Node 22+.
+
+### Engine (`/engine`)
+
+```bash
+npm install                          # from the repository root
+cp engine/.env.example engine/.env   # set PAY_TO=G... (the engine account), GITHUB_TOKEN, JOB=migrate, PORT=4041
+npm start -w engine                  # 402 Found engine on http://localhost:4041
+```
+
+`JOB=migrate` opens a real pull request; `JOB=hello` takes the payment and opens none. Without `PORT` the engine uses 4021, the port the workshop kit's Solar Data service also uses. To deploy, [`render.yaml`](render.yaml) describes the service for Render. More in [`engine/README.md`](engine/README.md).
+
 ### Wallet (`/wallet`)
 
-Needs Node 20+ and a funded Stellar testnet key for the agent.
+Needs a funded Stellar testnet key for the agent.
 
 ```bash
 cd wallet
@@ -118,7 +136,6 @@ A retry with the same payment returns the same `jobId` and pull request.
 
 ## Facilitator
 
-- Primary: OpenZeppelin Relayer x402 facilitator, testnet (API key required).
-- Fallback: Coinbase x402 facilitator, which supports Stellar testnet with sponsored fees.
+The engine uses the public x402 facilitator at `https://www.x402.org/facilitator` (set in `FACILITATOR_URL`), which supports Stellar testnet and pays the network fee. No API key is needed. Any x402 facilitator that supports `stellar:testnet` can be swapped in through `FACILITATOR_URL`.
 
 Source: [Stellar Developers, "What is x402?"](https://developers.stellar.org/docs/build/agentic-payments/x402)
