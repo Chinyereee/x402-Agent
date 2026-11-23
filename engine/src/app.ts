@@ -99,6 +99,9 @@ const signatureKey = (header: string) => createHash('sha256').update(header).dig
 
 export function createApp({ config, facilitator, github, runJob }: AppDeps): Express {
   const app = express();
+  // Behind a hosting proxy (Render) the request reaches us over http; trust its
+  // X-Forwarded-Proto so the x402 resource URL in PAYMENT-REQUIRED says https.
+  app.set('trust proxy', 1);
   app.use(express.json({ limit: '16kb' }));
 
   // Step D: one payment, one job. A retry with the same PAYMENT-SIGNATURE gets the
